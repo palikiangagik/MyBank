@@ -1,0 +1,15 @@
+services:
+  mybank.portal:
+    image: ${DOCKER_REGISTRY-}mybankportal
+    build:
+      context: .
+      dockerfile: MyBank.Portal/Dockerfile
+    environment:
+      - ConnectionStrings__MyBankPortalContextConnection=Server=db;Database=MyBank;User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=True
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=${DB_PASSWORD}
+    ports:
+      - "1433:1433"
