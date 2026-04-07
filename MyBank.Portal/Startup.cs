@@ -33,8 +33,11 @@ namespace MyBank.Portal
                    options.UseSqlServer(
                        Configuration.GetConnectionString("MyBankPortalContextConnection")));
 
-            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddEntityFrameworkStores<MyBankPortalContext>();
+            services.AddDefaultIdentity<IdentityUser>(options => {
+                options.SignIn.RequireConfirmedAccount = false;
+                options.SignIn.RequireConfirmedPhoneNumber = false;
+                options.SignIn.RequireConfirmedEmail = false;
+            }).AddEntityFrameworkStores<MyBankPortalContext>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -60,6 +63,9 @@ namespace MyBank.Portal
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapControllerRoute(
+                    name: "Portal",
+                    pattern: "{area:exists}/{controller=Profile}/{action=Index}/{id?}");
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");

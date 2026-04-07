@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace MyBank.Portal.Controllers
+namespace MyBank.Portal.Areas.Portal.Controllers
 {
-    [Authorize(Roles = "Admin")]
-    public class AdminController : Controller
+    [Authorize]
+    [Area("Portal")]
+    public class ProfileController : Controller
     {
         public IActionResult Index()
         {
