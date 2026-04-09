@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using MyBank.Portal.Models;
+using MyBank.Portal.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
