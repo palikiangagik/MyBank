@@ -5,6 +5,7 @@ using MyBank.Portal.Areas.Portal.ViewModels;
 using MyBank.Portal.Data;
 using System.Threading.Tasks;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace MyBank.Portal.Areas.Portal.Controllers
 {
@@ -29,19 +30,17 @@ namespace MyBank.Portal.Areas.Portal.Controllers
             if (user == null)
                 return NotFound();
 
-            var accounts = from acc in _context.Accounts
-                           where acc.User == user
-                           select acc;
+            var accounts = await _context.Accounts
+                .Where(acc => acc.User == user)
+                .Select(acc => new AccountViewModel { Id = acc.Id, Balance = acc.Balance })
+                .ToListAsync();
 
-            decimal balance = 0;
-            foreach (var acc in accounts)
-            {
-                balance += acc.Balance;
-            }
+            decimal totalBalance = accounts.Sum(acc => acc.Balance);
 
             return View(new ProfileViewModel {
                 UserName = user.UserName,
-                Balance = balance
+                Balance = totalBalance,
+                Accounts = accounts
             });
         }
     }
