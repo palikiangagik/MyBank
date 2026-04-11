@@ -1,0 +1,32 @@
+﻿@using MyBank.Portal.Models
+
+@{
+	ViewData["Title"] = "My Bank - Transaction History";
+}
+
+@model TransactionHistoryViewModel
+
+<h3>Transaction history</h3>
+
+<table class="table table-striped">
+
+	@foreach (var account in Model.Transactions)
+	{
+		<tr>
+			<td>
+				@switch (account.Type)
+				{
+					case TransactionType.Deposit:
+						<text>@account.Amount deposited to @account.Recipient.Id</text>
+						break;
+					case TransactionType.Withdrawal:
+						<text>@account.Amount withdrawn from @account.Sender.Id</text>
+						break;
+					case TransactionType.Transfer:
+						<text>@account.Amount transferred from @account.Sender.Id to @account.Recipient.Name</text>
+						break;
+				}
+			</td>
+		</tr>
+	}
+</table>

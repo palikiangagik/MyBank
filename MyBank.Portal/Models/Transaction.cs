@@ -7,7 +7,7 @@ namespace MyBank.Portal.Models
     {
         Transfer,
         Withdrawal,
-        Replenishment
+        Deposit
     }
     public class Transaction
     {
