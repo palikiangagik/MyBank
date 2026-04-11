@@ -13,8 +13,8 @@
 	<select asp-for="Account" asp-items="Model.Accounts"></select></br>
 	<label asp-for="Amount"></label></br>
 	<input asp-for="Amount"/></br></br>
-	<button asp-route-actionType="Deposit">Deposit</button>
-	<button asp-route-actionType="Withdrawal">Withdrawal</button>
+	<button asp-route-actionType="Deposit" class="button">Deposit</button>
+	<button asp-route-actionType="Withdrawal" class="button">Withdrawal</button>
 </form>
 @if (TempData["Message"] != null)
 {

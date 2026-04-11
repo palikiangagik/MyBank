@@ -6,6 +6,7 @@ using MyBank.Portal.Data;
 using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using MyBank.Portal.Models;
 
 namespace MyBank.Portal.Areas.Portal.Controllers
 {
@@ -30,7 +31,10 @@ namespace MyBank.Portal.Areas.Portal.Controllers
 
             var accounts = await _context.Accounts
                 .Where(acc => acc.User == user)
-                .Select(acc => new ProfileAccountViewItem { Id = acc.Id, Balance = acc.Balance })
+                .Select(acc => new ProfileAccountViewItem { 
+                    Id = acc.Id, 
+                    Balance = acc.Balance
+                })
                 .ToListAsync();
 
             decimal totalBalance = accounts.Sum(acc => acc.Balance);
@@ -38,8 +42,39 @@ namespace MyBank.Portal.Areas.Portal.Controllers
             return View(new ProfileViewModel {
                 UserName = user.UserName,
                 Balance = totalBalance,
-                Accounts = accounts
+                Accounts = accounts,
             });
+        }
+
+        public async Task<IActionResult> OpenNewAccount()
+        {
+            return View(new OpenNewAccountViewModel());            
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> OpenNewAccount(OpenNewAccountViewModel vm)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null)
+                return Problem("User not found");
+
+            if (!ModelState.IsValid)
+                return View(new OpenNewAccountViewModel());
+
+            await _context.Accounts.AddAsync(new Account
+            {
+                User = user,
+                Balance = vm.Amount
+            });
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Index");
+        }
+
+        public async Task<IActionResult> CloseAccount(int id)
+        {
+            return View();
         }
     }
 }

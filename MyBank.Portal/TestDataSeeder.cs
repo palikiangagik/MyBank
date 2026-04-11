@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -54,13 +55,13 @@ namespace MyBank.Portal
 
         private async Task Seed()
         {
-            var seedData = new Dictionary<string, decimal>
+            var seedData = new List<(string user, decimal balance)>
             {
-                { "andrew@mail.com", 3000m },
-                { "james@mail.com", 13000m },
-                { "john@mail.com", 20000m },
-                { "olivia@mail.com", 7500m },
-                { "sophia@mail.com", 3250m }
+                ( "andrew@mail.com", 3000m ),
+                ( "james@mail.com", 13000m ),
+                ( "john@mail.com", 20000m ),
+                ( "olivia@mail.com", 7500m ),
+                ( "sophia@mail.com", 3250m )
             };
 
             foreach (var (email, balance) in seedData)
@@ -91,7 +92,10 @@ namespace MyBank.Portal
 
         private async Task CreateAccount(IdentityUser user, decimal balance)
         {
-            await _context.Accounts.AddAsync(new Account { User = user, Balance = balance });
+            await _context.Accounts.AddAsync(new Account { 
+                User = user, 
+                Balance = balance
+            });
         }
     }
 }
