@@ -1,0 +1,23 @@
+﻿@{
+	ViewData["Title"] = "My Bank - Deposit and Withdrawal";
+}
+
+@model DepositAndWithdrawalViewModel
+
+@* TODO: polish the grid using bootstrap *@
+
+<h3>Deposit and Withdrawal</h3>
+<form asp-antiforgery="true">
+	<div class="validation" asp-validation-summary="All"></div>
+	<label asp-for="Account"></label></br>
+	<select asp-for="Account" asp-items="Model.Accounts"></select></br>
+	<label asp-for="Amount"></label></br>
+	<input asp-for="Amount"/></br></br>
+	<button asp-route-actionType="Deposit">Deposit</button>
+	<button asp-route-actionType="Withdrawal">Withdrawal</button>
+</form>
+@if (TempData["Message"] != null)
+{
+	@TempData["Message"]
+}
+

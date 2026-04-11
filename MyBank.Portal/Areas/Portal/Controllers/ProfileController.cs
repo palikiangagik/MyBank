@@ -28,11 +28,11 @@ namespace MyBank.Portal.Areas.Portal.Controllers
             var user = await _userManager.GetUserAsync(User);
 
             if (user == null)
-                return NotFound();
+                return Problem("User not found");
 
             var accounts = await _context.Accounts
                 .Where(acc => acc.User == user)
-                .Select(acc => new AccountViewModel { Id = acc.Id, Balance = acc.Balance })
+                .Select(acc => new ProfileAccountViewItem { Id = acc.Id, Balance = acc.Balance })
                 .ToListAsync();
 
             decimal totalBalance = accounts.Sum(acc => acc.Balance);
