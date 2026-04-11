@@ -46,7 +46,7 @@ namespace MyBank.Portal.Data
                 }
                 catch (Microsoft.Data.SqlClient.SqlException)
                 {
-                    if (i == maxRetries)
+                    if (i == maxRetries - 1)
                         throw;
                     Thread.Sleep(delayInSeconds * 1000);
                 }
