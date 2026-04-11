@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyBank.Portal.Areas.Portal.ViewModels;
 using MyBank.Portal.Data;
+using System;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 
@@ -34,24 +36,25 @@ namespace MyBank.Portal.Areas.Portal.Controllers
                     Type = acc.Type,
                     CreatedAt = acc.CreatedAt,
                     Amount = acc.Amount,
-                    Sender = new TransactionHistoryAccountViewItem
+                    Sender = null != acc.Sender ? new TransactionHistoryAccountViewItem
                     {
                         Name = acc.Sender.User.UserName,
                         Id = acc.Sender.Id
-                    },
-                    Recipient = new TransactionHistoryAccountViewItem
+                    } : null,
+                    Recipient = null != acc.Recipient ? new TransactionHistoryAccountViewItem
                     {
                         Name = acc.Recipient.User.UserName,
                         Id = acc.Recipient.Id
-                    }
+                    } : null
                 })
+                .OrderByDescending(acc => acc.CreatedAt)
                 .ToListAsync();
+
 
             return View(new TransactionHistoryViewModel
             {
                 Transactions = transactions
-            });
+            });            
         }
-
     }
 }

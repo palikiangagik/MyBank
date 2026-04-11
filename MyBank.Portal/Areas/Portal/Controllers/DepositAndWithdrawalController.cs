@@ -64,7 +64,17 @@ namespace MyBank.Portal.Areas.Portal.Controllers
                 if (dbacc.Balance + amount < 0)
                     throw new ValidationException("Not enough balance");                
 
+
+                await _context.Transactions.AddAsync(new Transaction
+                {
+                    Type = actionType == "Withdrawal" ? TransactionType.Withdrawal : TransactionType.Deposit,
+                    Amount = Math.Abs(amount),
+                    Sender = actionType == "Withdrawal" ? dbacc : null,
+                    Recipient = actionType == "Deposit" ? dbacc : null
+                });
+
                 dbacc.Balance += amount;
+
                 await _context.SaveChangesAsync();
 
                 TempData["Message"] = amount < 0 ?
