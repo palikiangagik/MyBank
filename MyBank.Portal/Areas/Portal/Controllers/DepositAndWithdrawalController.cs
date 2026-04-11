@@ -14,18 +14,16 @@ using System.Threading.Tasks;
 
 namespace MyBank.Portal.Areas.Portal.Controllers
 {
-    [Authorize]
-    [Area("Portal")]
-    public class DepositAndWithdrawalController : Controller
+    public class DepositAndWithdrawalController : BaseController
     {
-        private readonly MyBankPortalContext _context;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly MyBankPortalContext _context;
 
-        public DepositAndWithdrawalController(MyBankPortalContext context, 
+        public DepositAndWithdrawalController(MyBankPortalContext context,
             UserManager<IdentityUser> userManager)
         {
-            _context = context;
             _userManager = userManager;
+            _context = context;
         }
 
         public async Task<IActionResult> Index()
@@ -41,10 +39,13 @@ namespace MyBank.Portal.Areas.Portal.Controllers
         [HttpPost]
         public async Task<IActionResult> Index(DepositAndWithdrawalViewModel viewModel, string actionType)
         {
+            // TODO: +add transaction history update, +move the code to the service
+            // TODO: +add logging, +add IStringLocalizer
+
             var user = await _userManager.GetUserAsync(User);
 
             if (null == user)
-                return Problem("User not found");
+                return Problem("User not found"); // Move to a common place, e.g. BaseController
 
 
             if (!ModelState.IsValid)

@@ -1,0 +1,25 @@
+﻿@{
+	ViewData["Title"] = "My Bank - Money Transfer";
+}
+
+@model MoneyTransferViewModel
+
+@* TODO: Add currency and polish account numbers *@
+
+<h3>Money transfer</h3>
+<form asp-antiforgery="true">
+	<div class="validation" asp-validation-summary="All"></div>
+	<label asp-for="FromAccount"></label></br>
+	<select asp-for="FromAccount" asp-items="Model.FromAccounts"></select></br>
+	<label asp-for="ToAccount"></label></br>
+	<select asp-for="ToAccount" asp-items="Model.ToAccounts"></select></br>
+	<label asp-for="Amount"></label></br>
+	<input asp-for="Amount"></input></br>
+
+	</br>
+	<input type="submit" value="Send money"></button>
+</form>
+@if (TempData["Message"] != null)
+{
+	@TempData["Message"]
+}

@@ -9,9 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MyBank.Portal.Areas.Portal.Controllers
 {
-    [Authorize]
-    [Area("Portal")]
-    public class ProfileController : Controller
+    public class ProfileController : BaseController
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly MyBankPortalContext _context;
