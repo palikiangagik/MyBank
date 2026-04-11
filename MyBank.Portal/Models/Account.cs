@@ -9,6 +9,8 @@ namespace MyBank.Portal.Models
         [Required]
         public IdentityUser User { get; set; }
         public decimal Balance { get; set; }
+        [Required]
+        public bool IsClosed { get; set; } = false;
 
         // To avoid concurrency issues
         [Timestamp] 

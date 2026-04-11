@@ -54,7 +54,7 @@ namespace MyBank.Portal.Areas.Portal.Controllers
             try
             {    
                 Account dbacc = await (from acc in _context.Accounts
-                                       where acc.Id == viewModel.Account && acc.User == user
+                                       where acc.Id == viewModel.Account && acc.User == user && !acc.IsClosed
                                        select acc).FirstOrDefaultAsync();
                 if (null == dbacc)
                     throw new ValidationException("Account not found");
@@ -104,7 +104,7 @@ namespace MyBank.Portal.Areas.Portal.Controllers
         private async Task<DepositAndWithdrawalViewModel> GetViewModel(IdentityUser user)
         {
             var accounts = await (from acc in _context.Accounts
-                                  where acc.User == user
+                                  where acc.User == user && !acc.IsClosed
                                   select new SelectListItem
                                   {
                                       Value = acc.Id.ToString(),

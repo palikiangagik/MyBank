@@ -30,7 +30,7 @@ namespace MyBank.Portal.Areas.Portal.Controllers
                 return Problem("User not found");
 
             var accounts = await _context.Accounts
-                .Where(acc => acc.User == user)
+                .Where(acc => acc.User == user && !acc.IsClosed)
                 .Select(acc => new ProfileAccountViewItem { 
                     Id = acc.Id, 
                     Balance = acc.Balance
@@ -74,7 +74,39 @@ namespace MyBank.Portal.Areas.Portal.Controllers
 
         public async Task<IActionResult> CloseAccount(int id)
         {
-            return View();
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null)
+                return Problem("User not found");
+
+            bool exist = await _context.Accounts.AnyAsync(a => a.Id == id && a.User == user && !a.IsClosed);
+
+            if (!exist)
+                return NotFound();
+
+            return View(new CloseAccountViewModel { Id = id });
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> CloseAccount(CloseAccountViewModel vm)
+        {   
+            var user = await _userManager.GetUserAsync(User);
+            
+            if (user == null)
+                return NotFound();
+
+            var account = await _context.Accounts
+                .Where(a => a.Id == vm.Id && a.User == user && !a.IsClosed)
+                .FirstOrDefaultAsync();
+
+            if (account == null)
+                return NotFound();
+
+            account.IsClosed = true;
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Index");
         }
     }
 }

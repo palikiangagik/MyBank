@@ -50,14 +50,14 @@ namespace MyBank.Portal.Areas.Portal.Controllers
             try
             {
                 var accountFrom = await _context.Accounts
-                    .Where(acc => acc.Id == viewModel.FromAccount && acc.User.Id == user.Id)
+                    .Where(acc => acc.Id == viewModel.FromAccount && acc.User.Id == user.Id && !acc.IsClosed)
                     .FirstOrDefaultAsync();
 
                 if (null == accountFrom) 
                     throw new ValidationException("From account not found");
 
                 var accountTo = await _context.Accounts
-                    .Where(acc => acc.Id == viewModel.ToAccount)
+                    .Where(acc => acc.Id == viewModel.ToAccount && !acc.IsClosed)
                     .FirstOrDefaultAsync();
 
                 if (null == accountTo)
@@ -107,7 +107,7 @@ namespace MyBank.Portal.Areas.Portal.Controllers
 
         private async Task<MoneyTransferViewModel> GetViewModel(IdentityUser user)
         {
-            var accountsFrom = await _context.Accounts.Where(acc => acc.User.Id == user.Id)
+            var accountsFrom = await _context.Accounts.Where(acc => acc.User.Id == user.Id && !acc.IsClosed)
                 .Select(acc => new SelectListItem
                 {
                     Value = acc.Id.ToString(),
@@ -117,6 +117,7 @@ namespace MyBank.Portal.Areas.Portal.Controllers
             
             // TODO: Result could be too big.
             var accountsTo = await _context.Accounts
+                .Where(acc => !acc.IsClosed)
                 .Select(acc => new SelectListItem
                 {
                     Value = acc.Id.ToString(),
