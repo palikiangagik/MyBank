@@ -5,7 +5,8 @@ ASP.NET Core portfolio project.
 
 ### Option 1:
 1. Copy `.env.example` to `.env`.
-2. Open `MyBank.slnx` in Visual Studio and run.
+2. Open `MyBank.slnx` in Visual Studio
+3. Choose `Container (Dockerfile)` configuration and run the project.
 
 ### Option 2 (using Docker):
 1. Prepare SSL certificate. You can use `dotnet dev-certs https` to create certificate for local use. 
