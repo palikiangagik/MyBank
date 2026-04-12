@@ -6,10 +6,19 @@ services:
       dockerfile: MyBank.Portal/Dockerfile
     environment:
       - ConnectionStrings__MyBankPortalContextConnection=Server=db;Database=MyBank;User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=True
+      - ASPNETCORE_ENVIRONMENT=${APP_ENV}
+      - ASPNETCORE_URLS=${APP_URLS}
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=${CERT_PASSWORD}
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=${CONTAINER_CERT_PATH}
+    volumes:
+      - ${HOST_CERT_PATH}:/https:ro
+    ports:     
+      - "80:80"
+      - "443:443"
   db:
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
       - ACCEPT_EULA=Y
       - MSSQL_SA_PASSWORD=${DB_PASSWORD}
     ports:
-      - "1433:1433"     
+      - "1433:1433"
