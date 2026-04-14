@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -8,10 +7,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MyBank.Portal.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using MyBank.Portal.Services.Account;
+using MyBank.Portal.Contracts.Account;
 
 namespace MyBank.Portal
 {
@@ -30,6 +27,7 @@ namespace MyBank.Portal
             services.AddControllersWithViews(options => { 
                 options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
             });
+
             services.AddRazorPages();
 
             services.AddDbContext<MyBankPortalContext>(options =>
@@ -41,6 +39,8 @@ namespace MyBank.Portal
                 options.SignIn.RequireConfirmedPhoneNumber = false;
                 options.SignIn.RequireConfirmedEmail = false;
             }).AddEntityFrameworkStores<MyBankPortalContext>();
+
+            services.AddTransient<IAccountService, AccountService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

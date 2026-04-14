@@ -16,8 +16,9 @@ namespace MyBank.Portal.Areas.Portal.Controllers
 {
     public class DepositAndWithdrawalController : BaseController
     {
-        private readonly UserManager<IdentityUser> _userManager;
+
         private readonly MyBankPortalContext _context;
+        private readonly UserManager<IdentityUser> _userManager;
 
         public DepositAndWithdrawalController(MyBankPortalContext context,
             UserManager<IdentityUser> userManager)
@@ -39,7 +40,7 @@ namespace MyBank.Portal.Areas.Portal.Controllers
         [HttpPost]
         public async Task<IActionResult> Index(DepositAndWithdrawalViewModel viewModel, string actionType)
         {
-            // TODO: +add transaction history update, +move the code to the service
+            // TODO: +move the code to the service
             // TODO: +add logging, +add IStringLocalizer
 
             var user = await _userManager.GetUserAsync(User);
@@ -98,7 +99,7 @@ namespace MyBank.Portal.Areas.Portal.Controllers
             }
 
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index"); // TODO: use nameof()
         }
 
         private async Task<DepositAndWithdrawalViewModel> GetViewModel(IdentityUser user)

@@ -9,6 +9,7 @@ namespace MyBank.Portal.Models
         Withdrawal,
         Deposit
     }
+
     public class Transaction
     {
         public int Id { get; set; }
