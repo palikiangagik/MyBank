@@ -8,8 +8,15 @@
 
 <h3>Transaction history</h3>
 
-<table class="table table-striped">
-
+@if (Model.Transactions.Count == 0)
+{
+	<p>
+		You don't have any transactions yet.
+	</p>
+}	
+else
+{
+	<table class="table table-striped">	
 	@foreach (var account in Model.Transactions)
 	{
 		<tr>
@@ -31,4 +38,5 @@
 			</td>
 		</tr>
 	}
-</table>
+	</table>
+}

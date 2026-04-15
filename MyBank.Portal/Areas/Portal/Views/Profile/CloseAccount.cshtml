@@ -5,11 +5,11 @@
 @model CloseAccountViewModel
 
 <h3>Close account</h3>
-
-Are you sure you want to close account @Model.Id? This action cannot be undone.
-
+<p>
+	Are you sure you want to close account @Model.Id? This action cannot be undone.
+</p>
 <form asp-antiforgery="true">
-	<input type="hidden" asp-for="Id"></input><br/>
+	<input type="hidden" asp-for="Id"/><br/>
 	<br/>
-	<input type="submit" class="button" value="Close the account"></input>
+	<input type="submit" class="button" value="Close the account"/>
 </form>

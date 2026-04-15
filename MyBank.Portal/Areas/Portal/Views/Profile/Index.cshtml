@@ -8,19 +8,18 @@
 
 
 <h4>Welcome, @Model.UserName!</h4>
-<h6>Your total balance: @Model.Balance</h6>
-
-<a asp-action="OpenNewAccount" class="button">Open new account</a>
-<br/>
-<br/>
 
 @if (Model.Accounts.Count != 0)
 {
+	<h6>Your total balance: @Model.Balance</h6>	
+	<a asp-action="OpenNewAccount" class="button">Open new account</a><br/>	
 	<table class="table table-striped">
 		<thead>
-			<td>Account</td>
-			<td>Balance</td>
-			<td></td>
+			<tr>
+				<th>Account</th>
+				<th>Balance</th>
+				<th></th>
+			</tr>
 		</thead>
 
 		@foreach (var account in Model.Accounts)
@@ -32,4 +31,12 @@
 			</tr>
 		}
 	</table>
+}
+else
+{
+	<p>
+		You don't have any accounts. Please
+		<a asp-action="OpenNewAccount">open an account</a>
+		to see your profile details.
+	</p>
 }

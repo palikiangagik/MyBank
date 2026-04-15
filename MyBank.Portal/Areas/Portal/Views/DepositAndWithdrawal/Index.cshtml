@@ -10,9 +10,11 @@
 
 @if (Model.Accounts.Count == 0)
 {
-	<p>You don't have any accounts. Please 
-	<a  asp-controller="Profile" asp-action="OpenNewAccount">open an account</a> 
-	to make deposits and withdrawals.</p>
+	<p>
+		You don't have any accounts. Please
+		<a asp-controller="Profile" asp-action="OpenNewAccount">open an account</a>
+		to make deposits and withdrawals.
+	</p>
 }
 else
 {
