@@ -12,9 +12,9 @@ namespace MyBank.Portal.Infrastructure
     public record Result
     {
         public bool IsSuccess { get; }
-        public Error? Error { get; }
+        public Error Error { get; }
 
-        protected Result(bool isSuccess, Error? error)
+        protected Result(bool isSuccess, Error error)
         {
             IsSuccess = isSuccess;
             Error = error;
@@ -28,7 +28,7 @@ namespace MyBank.Portal.Infrastructure
 
     public record Result<T> : Result
     {
-        public T? Value { get; }
+        public T Value { get; }
 
         private Result(T value) : base(true, null) => Value = value;
         private Result(Error error) : base(false, error) { }
