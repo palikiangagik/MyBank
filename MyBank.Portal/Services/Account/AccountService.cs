@@ -1,12 +1,8 @@
-﻿using Microsoft.AspNetCore.Http.Features;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using MyBank.Portal.Areas.Portal.ViewModels;
+﻿using Microsoft.EntityFrameworkCore;
 using MyBank.Portal.Contracts.Account;
 using MyBank.Portal.Data;
 using MyBank.Portal.Infrastructure;
 using MyBank.Portal.Models;
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 
