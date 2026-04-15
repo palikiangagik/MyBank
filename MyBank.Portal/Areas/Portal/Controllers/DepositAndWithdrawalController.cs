@@ -1,14 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using MyBank.Portal.Areas.Portal.ViewModels;
-using MyBank.Portal.Data;
-using MyBank.Portal.Models;
-using System;
-using System.ComponentModel.DataAnnotations;
+using MyBank.Portal.Contracts.Account;
+using MyBank.Portal.Infrastructure;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -16,103 +10,82 @@ namespace MyBank.Portal.Areas.Portal.Controllers
 {
     public class DepositAndWithdrawalController : BaseController
     {
+        private readonly IAccountService _accountService;
 
-        private readonly MyBankPortalContext _context;
-        private readonly UserManager<IdentityUser> _userManager;
-
-        public DepositAndWithdrawalController(MyBankPortalContext context,
-            UserManager<IdentityUser> userManager)
+        public DepositAndWithdrawalController(IAccountService accountService)
         {
-            _userManager = userManager;
-            _context = context;
+            _accountService = accountService;
         }
 
         public async Task<IActionResult> Index()
         {
-            var user = await _userManager.GetUserAsync(User);
+            return await RefillAndReturn(new DepositAndWithdrawalViewModel());
+        }        
 
-            if (null == user)
-                return Problem("User not found");
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Deposit(DepositAndWithdrawalViewModel viewModel)
+        {
+            if (!ModelState.IsValid)
+                return await RefillAndReturn(viewModel, nameof(Index));            
 
-            return View(await GetViewModel(user));
+            var result = await _accountService.DepositAsync(UserNameIdentifier,
+                viewModel.Account, viewModel.Amount);
+
+            if (!result.IsSuccess)
+                return await RefillAndReturn(viewModel, nameof(Index), result);
+
+            // TODO: +add IStringLocalizer
+            // TODO: consider using a more robust notification system for user feedback 
+            TempData["Message"] = $"Deposited {viewModel.Amount} to account {viewModel.Account} successfully"; 
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
-        public async Task<IActionResult> Index(DepositAndWithdrawalViewModel viewModel, string actionType)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Withdraw(DepositAndWithdrawalViewModel viewModel)
         {
-            // TODO: +move the code to the service
-            // TODO: +add logging, +add IStringLocalizer
-
-            var user = await _userManager.GetUserAsync(User);
-
-            if (null == user)
-                return Problem("User not found"); // Move to a common place, e.g. BaseController
-
-
             if (!ModelState.IsValid)
-                return View(await GetViewModel(user));
+                return await RefillAndReturn(viewModel, nameof(Index));
 
-            try
-            {    
-                Account dbacc = await (from acc in _context.Accounts
-                                       where acc.Id == viewModel.Account && acc.User == user && !acc.IsClosed
-                                       select acc).FirstOrDefaultAsync();
-                if (null == dbacc)
-                    throw new ValidationException("Account not found");
-                
-                decimal amount = actionType == "Withdrawal" ? -viewModel.Amount : viewModel.Amount;
+            var result = await _accountService.WithdrawAsync(UserNameIdentifier,
+                viewModel.Account, viewModel.Amount);
 
-                if (dbacc.Balance + amount < 0)
-                    throw new ValidationException("Not enough balance");                
+            if (!result.IsSuccess)
+                return await RefillAndReturn(viewModel, nameof(Index), result);
 
-
-                await _context.Transactions.AddAsync(new Transaction
-                {
-                    Type = actionType == "Withdrawal" ? TransactionType.Withdrawal : TransactionType.Deposit,
-                    Amount = Math.Abs(amount),
-                    Sender = actionType == "Withdrawal" ? dbacc : null,
-                    Recipient = actionType == "Deposit" ? dbacc : null
-                });
-
-                dbacc.Balance += amount;
-
-                await _context.SaveChangesAsync();
-
-                TempData["Message"] = amount < 0 ?
-                    $"Withdrew {-amount} from account {dbacc.Id} successfully" :
-                    $"Deposited {amount} to account {dbacc.Id} successfully";
-            }
-            catch (ValidationException e)
-            {
-                ModelState.AddModelError("", e.Message);
-                return View(await GetViewModel(user));
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                ModelState.AddModelError("", "An error occurred while processing your request. Please try again.");
-                return View(await GetViewModel(user));
-            }
-            catch (Exception)
-            {
-                ModelState.AddModelError("", "Unexpected error occurred. Please try again.");
-                return View(await GetViewModel(user));
-            }
-
-
-            return RedirectToAction("Index"); // TODO: use nameof()
+            TempData["Message"] = $"Withdrew {viewModel.Amount} from account {viewModel.Account} successfully";
+            return RedirectToAction(nameof(Index));
         }
 
-        private async Task<DepositAndWithdrawalViewModel> GetViewModel(IdentityUser user)
-        {
-            var accounts = await (from acc in _context.Accounts
-                                  where acc.User == user && !acc.IsClosed
-                                  select new SelectListItem
-                                  {
-                                      Value = acc.Id.ToString(),
-                                      Text = $"{acc.Id} (Balance: {acc.Balance})"
-                                  }).ToListAsync();
 
-            return new DepositAndWithdrawalViewModel { Accounts = accounts };
+        private async Task<IActionResult> RefillAndReturn(DepositAndWithdrawalViewModel viewModel, 
+            string action = null,
+            Result result = null
+        )
+        {
+            // TODO: add pagination
+            var getResult = await _accountService.GetAccountsAsync(
+               UserNameIdentifier,
+               1,
+               int.MaxValue // TODO: add pagination support
+           );
+
+            if (!getResult.IsSuccess)
+                return Failure(getResult, action);
+
+            viewModel.Accounts = getResult.Value?.Items.Select(acc => new SelectListItem
+            {
+                Value = acc.Id.ToString(),
+                Text = $"{acc.Id} (Balance: {acc.Balance})"
+            }).ToList();
+
+            if (null != result && !result.IsSuccess)
+                return Failure(result, viewModel, action);
+            else if (!string.IsNullOrEmpty(action))
+                return View(action, viewModel);
+            else
+                return View(viewModel);
         }
     }
 }

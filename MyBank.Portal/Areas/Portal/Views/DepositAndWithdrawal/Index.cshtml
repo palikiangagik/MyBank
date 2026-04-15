@@ -7,15 +7,26 @@
 @* TODO: polish the grid using bootstrap *@
 
 <h3>Deposit and Withdrawal</h3>
-<form asp-antiforgery="true">
-	<div class="validation" asp-validation-summary="All"></div>
-	<label asp-for="Account"></label></br>
-	<select asp-for="Account" asp-items="Model.Accounts"></select></br>
-	<label asp-for="Amount"></label></br>
-	<input asp-for="Amount"/></br></br>
-	<button asp-route-actionType="Deposit" class="button">Deposit</button>
-	<button asp-route-actionType="Withdrawal" class="button">Withdrawal</button>
-</form>
+
+@if (Model.Accounts.Count == 0)
+{
+	<p>You don't have any accounts. Please 
+	<a  asp-controller="Profile" asp-action="OpenNewAccount">open an account</a> 
+	to make deposits and withdrawals.</p>
+}
+else
+{
+	<form asp-antiforgery="true">
+		<div class="validation" asp-validation-summary="All"></div>
+		<label asp-for="Account"></label><br/>
+		<select asp-for="Account" asp-items="Model.Accounts"></select><br/>
+		<label asp-for="Amount"></label><br/>
+		<input asp-for="Amount"/><br/><br/>
+		<button asp-action="Deposit" type="submit" class="button">Deposit</button>
+		<button asp-action="Withdraw" type="submit" class="button">Withdraw</button>
+	</form>
+}
+
 @if (TempData["Message"] != null)
 {
 	@TempData["Message"]

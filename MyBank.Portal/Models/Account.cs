@@ -7,6 +7,7 @@ namespace MyBank.Portal.Models
     {
         public int Id { get; set; }
         [Required]
+        public string UserId { get; set; }
         public IdentityUser User { get; set; }
         public decimal Balance { get; set; }
         [Required]

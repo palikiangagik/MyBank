@@ -8,7 +8,7 @@ namespace MyBank.Portal.Areas.Portal.ViewModels
     {
         [Required]
         [Display(Name = "Amount")]
-        [Range(0, double.MaxValue, ErrorMessage = "Amount must be positive")]
+        [Range(0, double.MaxValue, ErrorMessage = "Amount must be positive.")]
         public decimal Amount { get; set; }
     }
 }

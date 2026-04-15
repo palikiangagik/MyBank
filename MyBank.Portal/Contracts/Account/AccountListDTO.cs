@@ -6,5 +6,6 @@ namespace MyBank.Portal.Contracts.Account
     {
         public List<AccountListItemDTO> Items { get; init; }
         public int TotalCount { get; init; }
+        public decimal TotalBalance { get; init; }
     }
 }

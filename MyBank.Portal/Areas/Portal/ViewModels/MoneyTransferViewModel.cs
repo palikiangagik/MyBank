@@ -17,7 +17,7 @@ namespace MyBank.Portal.Areas.Portal.ViewModels
         public int ToAccount { get; set; }
         [Required]
         [Display(Name = "Amount")]
-        [Range(0.01, double.MaxValue, ErrorMessage = "Amount must be greater than 0")]
+        [Range(0.01, double.MaxValue, ErrorMessage = "Amount must be greater than 0.")]
         public decimal Amount { get; set; }
     }
 }

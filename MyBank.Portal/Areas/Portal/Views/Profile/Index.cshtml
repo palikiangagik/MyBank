@@ -11,23 +11,25 @@
 <h6>Your total balance: @Model.Balance</h6>
 
 <a asp-action="OpenNewAccount" class="button">Open new account</a>
-</br>
-</br>
+<br/>
+<br/>
 
-<table class="table table-striped">
-	<thead>
-		<td>Account</td>
-		<td>Balance</td>
-		<td></td>
-	</thead>
+@if (Model.Accounts.Count != 0)
+{
+	<table class="table table-striped">
+		<thead>
+			<td>Account</td>
+			<td>Balance</td>
+			<td></td>
+		</thead>
 
-	@foreach (var account in Model.Accounts)
-	{
-		<tr>
-			<td>@account.Id</td>
-			<td>@account.Balance</td>
-			<td><a asp-action="CloseAccount" asp-route-id="@account.Id" class="button">Close account</a></td>
-		</tr>
-	}
-</table>
-
+		@foreach (var account in Model.Accounts)
+		{
+			<tr>
+				<td>@account.Id</td>
+				<td>@account.Balance</td>
+				<td><a asp-action="CloseAccount" asp-route-id="@account.Id" class="button">Close account</a></td>
+			</tr>
+		}
+	</table>
+}

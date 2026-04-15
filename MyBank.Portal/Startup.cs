@@ -9,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using MyBank.Portal.Data;
 using MyBank.Portal.Services.Account;
 using MyBank.Portal.Contracts.Account;
+using MyBank.Portal.Middlewares;
 
 namespace MyBank.Portal
 {
@@ -46,6 +47,9 @@ namespace MyBank.Portal
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseMiddleware<ExceptionLoggingMiddleware>();
+
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

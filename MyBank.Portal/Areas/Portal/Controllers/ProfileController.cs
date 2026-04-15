@@ -1,48 +1,41 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using MyBank.Portal.Areas.Portal.ViewModels;
-using MyBank.Portal.Data;
-using System.Threading.Tasks;
+using MyBank.Portal.Contracts.Account;
 using System.Linq;
-using Microsoft.EntityFrameworkCore;
-using MyBank.Portal.Models;
+using System.Threading.Tasks;
 
 namespace MyBank.Portal.Areas.Portal.Controllers
 {
     public class ProfileController : BaseController
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly MyBankPortalContext _context;
+        private readonly  IAccountService _accountService;
 
-        public ProfileController(UserManager<IdentityUser> userManager, 
-            MyBankPortalContext context)
+        public ProfileController(IAccountService accountService)
         {
-            _userManager = userManager;
-            _context = context;
+            _accountService = accountService;
         }
 
         public async Task<IActionResult> Index()
-        {
-            var user = await _userManager.GetUserAsync(User);
+        {            
+            var result = await _accountService.GetAccountsAsync(
+                UserNameIdentifier, 
+                1, 
+                int.MaxValue // TODO: add pagination support
+            );
 
-            if (user == null)
-                return Problem("User not found");
-
-            var accounts = await _context.Accounts
-                .Where(acc => acc.User == user && !acc.IsClosed)
-                .Select(acc => new ProfileAccountViewItem { 
-                    Id = acc.Id, 
-                    Balance = acc.Balance
-                })
-                .ToListAsync();
-
-            decimal totalBalance = accounts.Sum(acc => acc.Balance);
+            if (!result.IsSuccess)
+                return Failure(result);
 
             return View(new ProfileViewModel {
-                UserName = user.UserName,
-                Balance = totalBalance,
-                Accounts = accounts,
+                UserName = UserName,
+                Balance = result.Value.TotalBalance,
+                Accounts = result.Value
+                .Items
+                .Select(acc => new ProfileAccountViewItem
+                {
+                    Id = acc.Id,
+                    Balance = acc.Balance
+                }).ToList()
             });
         }
 
@@ -52,61 +45,39 @@ namespace MyBank.Portal.Areas.Portal.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> OpenNewAccount(OpenNewAccountViewModel vm)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> OpenNewAccount(OpenNewAccountViewModel viewModel)
         {
-            var user = await _userManager.GetUserAsync(User);
-
-            if (user == null)
-                return Problem("User not found");
-
             if (!ModelState.IsValid)
-                return View(new OpenNewAccountViewModel());
+                return View(viewModel);
 
-            await _context.Accounts.AddAsync(new Account
-            {
-                User = user,
-                Balance = vm.Amount
-            });
+            var result = await _accountService.OpenNewAccountAsync(UserNameIdentifier, viewModel.Amount);
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction("Index");
+            if (!result.IsSuccess)
+                return Failure(result, viewModel);            
+
+            return RedirectToAction(nameof(Index));
         }
 
         public async Task<IActionResult> CloseAccount(int id)
         {
-            var user = await _userManager.GetUserAsync(User);
-
-            if (user == null)
-                return Problem("User not found");
-
-            bool exist = await _context.Accounts.AnyAsync(a => a.Id == id && a.User == user && !a.IsClosed);
-
-            if (!exist)
-                return NotFound();
-
             return View(new CloseAccountViewModel { Id = id });
         }
 
 
         [HttpPost]
-        public async Task<IActionResult> CloseAccount(CloseAccountViewModel vm)
-        {   
-            var user = await _userManager.GetUserAsync(User);
-            
-            if (user == null)
-                return NotFound();
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CloseAccount(CloseAccountViewModel viewModel)
+        {
+            if (!ModelState.IsValid)
+                return View(viewModel);
 
-            var account = await _context.Accounts
-                .Where(a => a.Id == vm.Id && a.User == user && !a.IsClosed)
-                .FirstOrDefaultAsync();
+            var result = await _accountService.CloseAccountAsync(UserNameIdentifier, viewModel.Id);
 
-            if (account == null)
-                return NotFound();
+            if (!result.IsSuccess)
+                return Failure(result, viewModel);
 
-            account.IsClosed = true;
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
         }
     }
 }

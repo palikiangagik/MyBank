@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyBank.Portal.Areas.Portal.ViewModels;
+using MyBank.Portal.Contracts.Account;
 using MyBank.Portal.Data;
 using System;
 using System.Linq;
@@ -13,46 +14,34 @@ namespace MyBank.Portal.Areas.Portal.Controllers
 {
     public class TransactionHistoryController : BaseController
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly MyBankPortalContext _context;
+        private readonly IAccountService _accountService;
 
-        public TransactionHistoryController(UserManager<IdentityUser> userManager, MyBankPortalContext context)
+        public TransactionHistoryController(IAccountService accountService)
         {
-            _userManager = userManager;
-            _context = context;
+            _accountService = accountService;
         }
 
         public async Task<IActionResult> Index()
         {
-            var user = await _userManager.GetUserAsync(User);
+            // TODO : add pagination
+            var result = await _accountService.GetTransactionHistoryAsync(UserNameIdentifier,
+                1, int.MaxValue);
 
-            if (user == null)
-                return Problem("User not found");
+            if (!result.IsSuccess)
+                return Failure(result);
 
-            var transactions = await _context.Transactions
-                .Where(acc => acc.Recipient.User == user || acc.Sender.User == user)
-                .Select(acc => new TransactionHistoryViewItem
-                {
-                    Type = acc.Type,
-                    CreatedAt = acc.CreatedAt,
-                    Amount = acc.Amount,
-                    Sender = null != acc.Sender ? new TransactionHistoryAccountViewItem
-                    {
-                        Name = acc.Sender.User.UserName,
-                        Id = acc.Sender.Id
-                    } : null,
-                    Recipient = null != acc.Recipient ? new TransactionHistoryAccountViewItem
-                    {
-                        Name = acc.Recipient.User.UserName,
-                        Id = acc.Recipient.Id
-                    } : null
-                })
-                .OrderByDescending(acc => acc.CreatedAt)
-                .ToListAsync();
+            var transactions = result.Value.Items
+                .Select(trans => new TransactionHistoryViewItem {
+                    Type = trans.Type,
+                    CreatedAt = trans.CreatedAt,
+                    Amount = trans.Amount,
+                    SenderId = trans.SenderAccountId,
+                    SenderName = trans.SenderUserName,
+                    RecipientId = trans.RecipientAccountId,
+                    RecipientName = trans.RecipientUserName
+                }).ToList();
 
-
-            return View(new TransactionHistoryViewModel
-            {
+            return View(new TransactionHistoryViewModel {
                 Transactions = transactions
             });            
         }

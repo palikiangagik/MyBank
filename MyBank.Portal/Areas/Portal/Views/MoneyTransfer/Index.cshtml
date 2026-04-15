@@ -9,14 +9,14 @@
 <h3>Money transfer</h3>
 <form asp-antiforgery="true">
 	<div class="validation" asp-validation-summary="All"></div>
-	<label asp-for="FromAccount"></label></br>
-	<select asp-for="FromAccount" asp-items="Model.FromAccounts"></select></br>
-	<label asp-for="ToAccount"></label></br>
-	<select asp-for="ToAccount" asp-items="Model.ToAccounts"></select></br>
-	<label asp-for="Amount"></label></br>
-	<input asp-for="Amount"></input></br>
+	<label asp-for="FromAccount"></label><br/>
+	<select asp-for="FromAccount" asp-items="Model.FromAccounts"></select><br/>
+	<label asp-for="ToAccount"></label><br/>
+	<select asp-for="ToAccount" asp-items="Model.ToAccounts"></select><br/>
+	<label asp-for="Amount"></label><br/>
+	<input asp-for="Amount"></input><br/>
 
-	</br>
+	<br/>
 	<input type="submit" class="button" value="Send money"></input>
 </form>
 @if (TempData["Message"] != null)

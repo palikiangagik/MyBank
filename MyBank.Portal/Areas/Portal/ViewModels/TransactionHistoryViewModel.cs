@@ -4,19 +4,15 @@ using MyBank.Portal.Models;
 
 namespace MyBank.Portal.Areas.Portal.ViewModels
 {
-    public class TransactionHistoryAccountViewItem
-    {
-        public string Name { get; set; }
-        public int Id { get; set; }
-    }
-
     public class TransactionHistoryViewItem
     {
         public TransactionType Type { get; set; }
         public DateTime CreatedAt { get; set; }
         public decimal Amount { get; set; }
-        public TransactionHistoryAccountViewItem Sender { get; set; }
-        public TransactionHistoryAccountViewItem Recipient { get; set; }
+        public int? SenderId { get; set; }
+        public string SenderName { get; set; }
+        public int? RecipientId { get; set; }
+        public string RecipientName { get; set; }
     }
 
     public class TransactionHistoryViewModel
