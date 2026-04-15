@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 
-namespace MyBank.Portal.Models
+namespace MyBank.Portal.Data.Models
 {   
     public class Account
     {

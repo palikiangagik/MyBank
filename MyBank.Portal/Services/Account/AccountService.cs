@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MyBank.Portal.Contracts.Account;
 using MyBank.Portal.Data;
+using MyBank.Portal.Data.Models;
 using MyBank.Portal.Infrastructure;
-using MyBank.Portal.Models;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -98,7 +98,7 @@ namespace MyBank.Portal.Services.Account
                 return Errors.NegativeAmount;
             
             await _context.Accounts.AddAsync(
-                new  Models.Account {
+                new  Data.Models.Account {
                     UserId = currentUserId,
                     Balance = balance
                 }
@@ -114,7 +114,7 @@ namespace MyBank.Portal.Services.Account
             if (!userExists)
                 return Errors.UserNotFound;
 
-            Models.Account account = await _context.Accounts
+            Data.Models.Account account = await _context.Accounts
                 .Where(acc => acc.UserId == currentUserId && acc.Id == accountId && !acc.IsClosed)
                 .FirstOrDefaultAsync();
 
@@ -137,7 +137,7 @@ namespace MyBank.Portal.Services.Account
             if (amount <= 0)
                 return Errors.NonPositiveAmount;
 
-            Models.Account account = await _context.Accounts
+            Data.Models.Account account = await _context.Accounts
                 .Where(acc => acc.UserId == currentUserId && acc.Id == accountId && !acc.IsClosed) // TODO: move acc.IsClosed to a common place, e.g. a global query filter
                 .FirstOrDefaultAsync();
 
@@ -169,7 +169,7 @@ namespace MyBank.Portal.Services.Account
             if (amount <= 0)
                 return Errors.NonPositiveAmount;
 
-            Models.Account account = await _context.Accounts
+            Data.Models.Account account = await _context.Accounts
                 .Where(acc => acc.UserId == currentUserId && acc.Id == accountId && !acc.IsClosed) // TODO: move acc.IsClosed to a common place, e.g. a global query filter
                 .FirstOrDefaultAsync();
 

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using MyBank.Portal.Models;
+using MyBank.Portal.Data.Models;
 
 namespace MyBank.Portal.Areas.Portal.ViewModels
 {

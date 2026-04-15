@@ -1,5 +1,5 @@
 ﻿using System;
-using MyBank.Portal.Models;
+using MyBank.Portal.Data.Models;
 
 namespace MyBank.Portal.Contracts.Account
 {

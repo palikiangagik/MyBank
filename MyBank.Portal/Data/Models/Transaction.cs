@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MyBank.Portal.Models
+namespace MyBank.Portal.Data.Models
 {
     public enum TransactionType
     {

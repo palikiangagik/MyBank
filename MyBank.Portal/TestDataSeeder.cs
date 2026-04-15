@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MyBank.Portal.Data;
-using MyBank.Portal.Models;
+using MyBank.Portal.Data.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,27 +13,19 @@ using System.Threading.Tasks;
 
 namespace MyBank.Portal
 {
-    public class TestDataSeeder : IDisposable
+    public class TestDataSeeder
     {
-        readonly private IServiceScope _scope;
         readonly private MyBankPortalContext _context;
         readonly private UserManager<IdentityUser> _userManager;
-        readonly private ILogger<TestDataSeeder> _logger;
+        readonly private ILogger<Program> _logger;
 
-        public TestDataSeeder(IHost host)  
+        public TestDataSeeder(MyBankPortalContext context, 
+            UserManager<IdentityUser> userManager, ILogger<Program> logger)
         {
-            _scope = host.Services.CreateScope();
-            var services = _scope.ServiceProvider;
-            _context = services.GetRequiredService<MyBankPortalContext>();
-            _userManager = services.GetRequiredService<UserManager<IdentityUser>>();
-            _logger = services.GetRequiredService<ILogger<TestDataSeeder>>();
-        }
-
-        public void Dispose()
-        {
-            _scope.Dispose();
-        }
-
+            _context = context;
+            _userManager = userManager;
+            _logger = logger;
+        }        
         
         public async Task Run()
         {

@@ -6,10 +6,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using MyBank.Portal.Data;
-using MyBank.Portal.Services.Account;
 using MyBank.Portal.Contracts.Account;
+using MyBank.Portal.Data;
 using MyBank.Portal.Middlewares;
+using MyBank.Portal.Services.Account;
+using System;
 
 namespace MyBank.Portal
 {
@@ -32,8 +33,15 @@ namespace MyBank.Portal
             services.AddRazorPages();
 
             services.AddDbContext<MyBankPortalContext>(options =>
-                   options.UseSqlServer(
-                       Configuration.GetConnectionString("MyBankPortalContextConnection")));
+                options.UseSqlServer(
+                    Configuration.GetConnectionString("MyBankPortalContextConnection"), 
+                    sqlOptions => sqlOptions.EnableRetryOnFailure(
+                        maxRetryCount: 10, // To handle DB startup delay in Docker
+                        maxRetryDelay: TimeSpan.FromSeconds(5),
+                        errorNumbersToAdd: null
+                    )
+                )
+            );
 
             services.AddDefaultIdentity<IdentityUser>(options => {
                 options.SignIn.RequireConfirmedAccount = false;
@@ -47,8 +55,8 @@ namespace MyBank.Portal
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            // To catch unhandled exceptions globally and log them
             app.UseMiddleware<ExceptionLoggingMiddleware>();
-
 
             if (env.IsDevelopment())
             {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using MyBank.Portal.Models;
+using MyBank.Portal.Data.Models;
 using System.Threading;
 
 namespace MyBank.Portal.Data
@@ -13,8 +13,7 @@ namespace MyBank.Portal.Data
  
         public MyBankPortalContext(DbContextOptions<MyBankPortalContext> options)
             : base(options)
-        {
-            EnsureDatabaseCreated();            
+        {     
         }
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -32,29 +31,6 @@ namespace MyBank.Portal.Data
                 .WithMany()
                 .HasForeignKey(t => t.RecipientId)
                 .OnDelete(DeleteBehavior.Restrict); 
-        }
-
-
-        private void EnsureDatabaseCreated()
-        {
-            // Retry logic to handle DB startup delay
-            int maxRetries = 5;
-            int delayInSeconds = 5;
-
-            for (int i = 0; i < maxRetries; i++)
-            {
-                try
-                {
-                    Database.EnsureCreated();
-                    break;
-                }
-                catch (Microsoft.Data.SqlClient.SqlException)
-                {
-                    if (i == maxRetries - 1)
-                        throw;
-                    Thread.Sleep(delayInSeconds * 1000);
-                }
-            }
         }
     }
 }
