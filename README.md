@@ -1,15 +1,11 @@
 # MyBank
 ASP.NET Core portfolio project.
 
----
-
 ## Prerequisites
 Before you begin, ensure you have the following installed:
 * **.NET 8.0 SDK** or later.
 * **Docker Desktop** (or Docker Engine with Compose).
 * **Visual Studio 2022/2026** (for IDE-based development).
-
----
 
 ## How to run MyBank
 
