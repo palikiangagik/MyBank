@@ -15,15 +15,18 @@ namespace MyBank.Portal
         {
             var host = CreateHostBuilder(args).Build();
 
-            // Applying migrations and seeding test data
+            // Applying migrations and seeding test data if run in dev environment
             using (var scope = host.Services.CreateScope())
             {
-                var context = scope.ServiceProvider.GetRequiredService<MyBankPortalContext>();
-                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
-                var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+                var services = scope.ServiceProvider;
+                var context = services.GetRequiredService<MyBankPortalContext>();
+                var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
+                var logger = services.GetRequiredService<ILogger<Program>>();
+                var env = services.GetRequiredService<IHostEnvironment>();
 
                 context.Database.Migrate();
-                await new TestDataSeeder(context, userManager, logger).Run();
+                if (env.IsDevelopment())
+                    await new TestDataSeeder(context, userManager, logger).Run();
             }
 
             await host.RunAsync();
