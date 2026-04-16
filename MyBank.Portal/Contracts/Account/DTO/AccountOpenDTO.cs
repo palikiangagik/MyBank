@@ -1,4 +1,4 @@
-﻿namespace MyBank.Portal.Contracts.Account
+﻿namespace MyBank.Portal.Contracts.Account.DTO
 {
     public class AccountOpenDTO
     {

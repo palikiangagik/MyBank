@@ -6,10 +6,13 @@
 
 <h3>Close account</h3>
 <p>
-	Are you sure you want to close account @Model.Id? This action cannot be undone.
+	Are you sure you want to close account @Model.Code? This action cannot be undone. <br/>
+	Please ensure all funds are withdrawn before account closure!
 </p>
 <form asp-antiforgery="true">
+	<div class="validation" asp-validation-summary="All"></div>
 	<input type="hidden" asp-for="Id"/><br/>
-	<br/>
+	<input type="hidden" asp-for="Code" /><br />
+	<input type="hidden" asp-for="Balance" /><br />
 	<input type="submit" class="button" value="Close the account"/>
 </form>

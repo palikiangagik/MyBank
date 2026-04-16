@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MyBank.Portal.Areas.Portal.ViewModels;
 using MyBank.Portal.Contracts.Account;
+using MyBank.Portal.Infrastructure;
 using System.Linq;
+using System.Security.Principal;
 using System.Threading.Tasks;
 
 namespace MyBank.Portal.Areas.Portal.Controllers
@@ -34,6 +36,7 @@ namespace MyBank.Portal.Areas.Portal.Controllers
                 .Select(acc => new ProfileAccountViewItem
                 {
                     Id = acc.Id,
+                    Code = acc.Code,
                     Balance = acc.Balance
                 }).ToList()
             });
@@ -61,9 +64,17 @@ namespace MyBank.Portal.Areas.Portal.Controllers
 
         public async Task<IActionResult> CloseAccount(int id)
         {
-            return View(new CloseAccountViewModel { Id = id });
-        }
+            var result = await _accountService.GetAccount(UserNameIdentifier, id);
 
+            if (!result.IsSuccess)
+                return Failure(result);
+
+            return View(new CloseAccountViewModel { 
+                Id = result.Value.Id,
+                Code = result.Value.Code,
+                Balance = result.Value.Balance
+            });
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]

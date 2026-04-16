@@ -36,7 +36,8 @@ namespace MyBank.Portal.Areas.Portal.Controllers
                 return await RefillAndReturn(viewModel, nameof(Index), result);
             
             // TODO: consider using other approach
-            TempData["Message"] = $"{viewModel.Amount} sent successfully";
+            TempData["Message"] = $"{result.Value.Amount} sent successfully from " +
+                $"{result.Value.SenderCode} to {result.Value.RecepientCode} ({result.Value.RecepientUserName}).";
             return RedirectToAction(nameof(Index));            
         }
 
@@ -60,14 +61,14 @@ namespace MyBank.Portal.Areas.Portal.Controllers
             .Select(acc => new SelectListItem
             {
                 Value = acc.Id.ToString(),
-                Text = $"{acc.Id} (Balance: {acc.Balance})" // TODO: move to a helper method
+                Text = $"{acc.Code} (Balance: {acc.Balance})" // TODO: move to a helper method
             }).ToList();
 
             viewModel.ToAccounts = accountToResult.Value?.Items
             .Select(acc => new SelectListItem
             {
                 Value = acc.Id.ToString(),
-                Text = $"{acc.UserName} - {acc.Id}" // TODO: move to a helper method
+                Text = $"{acc.Code} ({acc.UserName})" // TODO: move to a helper method
             }).ToList();
 
             if (null != result && !result.IsSuccess)

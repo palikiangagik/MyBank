@@ -1,4 +1,5 @@
-﻿using MyBank.Portal.Infrastructure;
+﻿using MyBank.Portal.Contracts.Account.DTO;
+using MyBank.Portal.Infrastructure;
 using System.Threading.Tasks;
 
 namespace MyBank.Portal.Contracts.Account
@@ -17,6 +18,17 @@ namespace MyBank.Portal.Contracts.Account
         /// <see cref="Errors.InvalidPagingParameters"/> If the paging parameters are invalid.
         /// </returns>
         Task<Result<AccountListDTO>> GetAccountsAsync(string currentUserId, int page, int pageSize);
+
+        /// <summary>
+        /// Get account data.
+        /// </summary>
+        /// <param name="currentUserId"> The ID of the current user.</param>
+        /// <param name="accountId"> The ID of the account to get.</param>
+        /// <returns>
+        /// <see cref="Result{AccountDTO}" /> If successfully retrieved.
+        /// <see cref="Errors.UserNotFound"/> If currentUserId is not found.
+        /// </returns>
+        Task<Result<AccountDTO>> GetAccount(string currentUserId, int accountId);
 
         /// <summary>
         /// Get destination account list for the current user. 
@@ -52,6 +64,7 @@ namespace MyBank.Portal.Contracts.Account
         /// <see cref="Result.Success"/> If successfully closed.
         /// <see cref="Errors.UserNotFound"/> If currentUserId is not found.
         /// <see cref="Errors.AccountNotFound"/> If the account is not found or does not belong to the user.
+        /// <see cref="Errors.ClosureDeniedWithBalance"/> If non zero balance.
         /// </returns>
         Task<Result> CloseAccountAsync(string currentUserId, int accountId);
 
@@ -62,12 +75,12 @@ namespace MyBank.Portal.Contracts.Account
         /// <param name="accountId"> The ID of the account to deposit into.</param>
         /// <param name="amount"> The amount of deposit. Must be greater than zero.</param>
         ///  <returns>
-        ///  <see cref = "Result.Success" /> If successfully deposited.
+        /// <see cref="Result{AccountDepositDTO}" /> If successfully deposited.
         ///  <see cref="Errors.UserNotFound"/> If currentUserId is not found.
         ///  <see cref="Errors.NonPositiveAmount"/> If the amount is less than or equal to zero.
         ///  <see cref="Errors.AccountNotFound"/> If the account is not found or does not belong to the user.
         ///  </returns>
-        Task<Result> DepositAsync(string currentUserId, int accountId, decimal amount);
+        Task<Result<AccountDepositDTO>> DepositAsync(string currentUserId, int accountId, decimal amount);
 
 
         /// <summary>
@@ -77,13 +90,13 @@ namespace MyBank.Portal.Contracts.Account
         /// <param name="accountId"> The ID of the account to withdraw from.</param>
         /// <param name="amount"> The amount to withdraw. Must be greater than zero.</param>
         /// <returns>
-        /// <see cref="Result.Success"/> If successfully withdrawn.
+        /// <see cref="Result{AccountWithdrawDTO}" /> If successfully withdrawn.
         /// <see cref="Errors.UserNotFound"/> If currentUserId is not found.
         /// <see cref="Errors.NonPositiveAmount"/> If the amount is less than or equal to zero.
         /// <see cref="Errors.AccountNotFound"/> If the account is not found or does not belong to the user.
         /// <see cref="Errors.NotEnoughBalance"/> If not enough balance.
         /// </returns>
-        Task<Result> WithdrawAsync(string currentUserId, int accountId, decimal amount);
+        Task<Result<AccountWithdrawDTO>> WithdrawAsync(string currentUserId, int accountId, decimal amount);
 
 
         /// <summary>
@@ -94,14 +107,14 @@ namespace MyBank.Portal.Contracts.Account
         /// <param name="accountToId"> The ID of the account to transfer money to.</param>
         /// <param name="amount"> The amount of money to transfer. Must be greater than zero.</param>
         /// <returns>
-        /// <see cref="Result.Success"/> If successfully transferred.
+        /// <see cref="Result{TransferMoneyDTO}"/> If successfully transferred.
         /// <see cref="Errors.UserNotFound"/> If currentUserId is not found.
         /// <see cref="Errors.AccountNotFound"/> If the accountFrom or accountTo is not found or accountFrom does not belong to the user.
         /// <see cref="Errors.NonPositiveAmount"/> If the amount is less than or equal to zero.
         /// <see cref="Errors.NotEnoughBalance"/> If not enough balance. 
         /// <see cref="Errors.SelfTransferNotAllowed"/> If accountFromId and accountToId are the same.
         /// </returns>
-        Task<Result> TransferMoneyAsync(string currentUserId, int accountFromId, int accountToId, decimal amount);
+        Task<Result<TransferMoneyDTO>> TransferMoneyAsync(string currentUserId, int accountFromId, int accountToId, decimal amount);
 
         /// <summary>
         /// Get transaction history for specified user.

@@ -1,7 +1,7 @@
 ﻿using System;
 using MyBank.Portal.Data.Models;
 
-namespace MyBank.Portal.Contracts.Account
+namespace MyBank.Portal.Contracts.Account.DTO
 {
     public record TransactionListItemDTO
     {
@@ -10,10 +10,10 @@ namespace MyBank.Portal.Contracts.Account
         public DateTime CreatedAt { get; init; }
         public decimal Amount { get; init; }
         
-        public int? SenderAccountId { get; init; }
+        public string SenderAccountCode { get; init; }
         public string SenderUserName { get; init; }
         
-        public int? RecipientAccountId { get; init; }
+        public string RecepientAccountCode { get; init; }
         public string RecipientUserName { get; init; }        
     }
 }

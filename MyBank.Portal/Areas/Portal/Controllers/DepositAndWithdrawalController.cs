@@ -37,7 +37,7 @@ namespace MyBank.Portal.Areas.Portal.Controllers
 
             // TODO: +add IStringLocalizer
             // TODO: consider using a more robust notification system for user feedback 
-            TempData["Message"] = $"Deposited {viewModel.Amount} to account {viewModel.Account} successfully"; 
+            TempData["Message"] = $"Deposited {result.Value.Amount} to account {result.Value.Code} successfully."; 
             return RedirectToAction(nameof(Index));
         }
 
@@ -54,7 +54,7 @@ namespace MyBank.Portal.Areas.Portal.Controllers
             if (!result.IsSuccess)
                 return await RefillAndReturn(viewModel, nameof(Index), result);
 
-            TempData["Message"] = $"Withdrew {viewModel.Amount} from account {viewModel.Account} successfully";
+            TempData["Message"] = $"Withdrew {result.Value.Amount} from account {result.Value.Code} successfully.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -77,7 +77,7 @@ namespace MyBank.Portal.Areas.Portal.Controllers
             viewModel.Accounts = getResult.Value?.Items.Select(acc => new SelectListItem
             {
                 Value = acc.Id.ToString(),
-                Text = $"{acc.Id} (Balance: {acc.Balance})"
+                Text = $"{acc.Code} (Balance: {acc.Balance})"
             }).ToList();
 
             if (null != result && !result.IsSuccess)

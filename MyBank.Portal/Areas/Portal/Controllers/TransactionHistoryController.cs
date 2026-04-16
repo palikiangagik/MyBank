@@ -32,9 +32,9 @@ namespace MyBank.Portal.Areas.Portal.Controllers
                     Type = trans.Type,
                     CreatedAt = trans.CreatedAt,
                     Amount = trans.Amount,
-                    SenderId = trans.SenderAccountId,
+                    SenderAccountCode = trans.SenderAccountCode,
                     SenderName = trans.SenderUserName,
-                    RecipientId = trans.RecipientAccountId,
+                    RecipientAccountCode = trans.RecepientAccountCode,
                     RecipientName = trans.RecipientUserName
                 }).ToList();
 

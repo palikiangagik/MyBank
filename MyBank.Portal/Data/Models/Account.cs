@@ -6,6 +6,7 @@ namespace MyBank.Portal.Data.Models
     public class Account
     {
         public int Id { get; set; }
+        public string Code => Id.ToString("D7");
         [Required]
         public string UserId { get; set; }
         public IdentityUser User { get; set; }

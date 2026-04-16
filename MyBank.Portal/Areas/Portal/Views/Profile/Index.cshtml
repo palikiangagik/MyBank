@@ -25,7 +25,7 @@
 		@foreach (var account in Model.Accounts)
 		{
 			<tr>
-				<td>@account.Id</td>
+				<td>@account.Code</td>
 				<td>@account.Balance</td>
 				<td><a asp-action="CloseAccount" asp-route-id="@account.Id" class="button">Close account</a></td>
 			</tr>

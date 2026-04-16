@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MyBank.Portal.Contracts.Account;
+using MyBank.Portal.Contracts.Account.DTO;
 using MyBank.Portal.Data;
 using MyBank.Portal.Data.Models;
 using MyBank.Portal.Infrastructure;
@@ -42,6 +43,7 @@ namespace MyBank.Portal.Services.Account
                 .Select(acc => new AccountListItemDTO
                 {
                     Id = acc.Id,
+                    Code = acc.Code,
                     Balance = acc.Balance
                 }).ToListAsync();
 
@@ -51,6 +53,26 @@ namespace MyBank.Portal.Services.Account
                 TotalCount = totalCount,
                 TotalBalance = totalBalance
             };            
+        }
+
+        public async Task<Result<AccountDTO>> GetAccount(string currentUserId, int accountId)
+        {
+            var userExists = await _context.Users.AnyAsync(u => u.Id == currentUserId);
+            if (!userExists)
+                return Errors.UserNotFound;
+
+            var account = await _context.Accounts
+                .FirstAsync(acc => acc.Id == accountId && !acc.IsClosed && acc.UserId == currentUserId);
+
+            if (null == account)
+                return Errors.AccountNotFound;
+
+            return new AccountDTO
+            {
+                Id = account.Id,
+                Code = account.Code,
+                Balance = account.Balance
+            };
         }
 
         public async Task<Result<DestinationAccountListDTO>> GetDestinationAccountsAsync(
@@ -77,7 +99,8 @@ namespace MyBank.Portal.Services.Account
                 .Take(pageSize)
                 .Select(acc => new DestinationAccountListItemDTO{
                     Id = acc.Id,
-                    UserName = acc.User.UserName
+                    UserName = acc.User.UserName,
+                    Code = acc.Code                    
                 })
                 .ToListAsync();
 
@@ -121,12 +144,15 @@ namespace MyBank.Portal.Services.Account
             if (null == account)
                 return Errors.AccountNotFound;
 
+            if (account.Balance > 0)
+                return Errors.ClosureDeniedWithBalance;
+
             account.IsClosed = true;
             await _context.SaveChangesAsync();
             return Result.Success();
         }
 
-        public async Task<Result> DepositAsync(string currentUserId, int accountId, decimal amount)
+        public async Task<Result<AccountDepositDTO>> DepositAsync(string currentUserId, int accountId, decimal amount)
         {
             var userExists = await _context.Users.AnyAsync(u => u.Id == currentUserId);
             if (!userExists)
@@ -155,10 +181,14 @@ namespace MyBank.Portal.Services.Account
             account.Balance += amount;
 
             await _context.SaveChangesAsync();
-            return Result.Success();
+            return new AccountDepositDTO
+            {
+                Code = account.Code,
+                Amount = amount
+            };
         }
 
-        public async Task<Result> WithdrawAsync(string currentUserId, int accountId, decimal amount)
+        public async Task<Result<AccountWithdrawDTO>> WithdrawAsync(string currentUserId, int accountId, decimal amount)
         {
             var userExists = await _context.Users.AnyAsync(u => u.Id == currentUserId);
             if (!userExists)
@@ -190,11 +220,15 @@ namespace MyBank.Portal.Services.Account
             account.Balance -= amount;
 
             await _context.SaveChangesAsync();
-            return Result.Success();
+            return new AccountWithdrawDTO
+            {
+                Code = account.Code,
+                Amount = amount
+            };
         }
 
 
-        public async Task<Result> TransferMoneyAsync(string currentUserId, int accountFromId, 
+        public async Task<Result<TransferMoneyDTO>> TransferMoneyAsync(string currentUserId, int accountFromId, 
             int accountToId, decimal amount)
         {
             var userExists = await _context.Users.AnyAsync(u => u.Id == currentUserId);
@@ -208,6 +242,7 @@ namespace MyBank.Portal.Services.Account
                 return Errors.SelfTransferNotAllowed;
 
             var accounts = await _context.Accounts
+                .Include(acc => acc.User)
                 .Where(acc =>
                     !acc.IsClosed &&
                     ((acc.UserId == currentUserId && acc.Id == accountFromId) || acc.Id == accountToId)
@@ -235,7 +270,13 @@ namespace MyBank.Portal.Services.Account
             });
 
             await _context.SaveChangesAsync();
-            return Result.Success();    
+            return new TransferMoneyDTO
+            {
+                SenderCode = accountFrom.Code,
+                RecepientCode = accountTo.Code,
+                RecepientUserName = accountTo.User?.UserName,
+                Amount = amount
+            };
         }
 
 
@@ -263,9 +304,9 @@ namespace MyBank.Portal.Services.Account
                     Type = trans.Type,
                     CreatedAt = trans.CreatedAt,
                     Amount = trans.Amount,
-                    SenderAccountId = trans.SenderId,
+                    SenderAccountCode = trans.Sender.Code,
                     SenderUserName = trans.Sender.User.UserName,
-                    RecipientAccountId = trans.RecipientId,
+                    RecepientAccountCode = trans.Recipient.Code,
                     RecipientUserName = trans.Recipient.User.UserName
                 })
                 .ToListAsync();

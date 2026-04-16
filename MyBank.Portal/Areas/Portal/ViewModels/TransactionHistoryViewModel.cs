@@ -10,9 +10,9 @@ namespace MyBank.Portal.Areas.Portal.ViewModels
         public TransactionType Type { get; set; }
         public DateTime CreatedAt { get; set; }
         public decimal Amount { get; set; }
-        public int? SenderId { get; set; }
+        public string SenderAccountCode { get; set; }
         public string SenderName { get; set; }
-        public int? RecipientId { get; set; }
+        public string RecipientAccountCode { get; set; }
         public string RecipientName { get; set; }
     }
 

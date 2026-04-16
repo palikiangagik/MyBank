@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace MyBank.Portal.Contracts.Account
+namespace MyBank.Portal.Contracts.Account.DTO
 {
     public class TransactionListDTO
     {

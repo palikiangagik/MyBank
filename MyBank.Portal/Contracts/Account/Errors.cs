@@ -12,5 +12,6 @@ namespace MyBank.Portal.Contracts.Account
         public static Error InvalidPagingParameters { get; } = new("InvalidPagingParameters", ErrorType.Validation, "Page number and size must be greater than zero.");
         public static Error NotEnoughBalance { get; } = new Error("NotEnoughBalance", ErrorType.Validation, "Not enough balance to perform the operation.");
         public static Error SelfTransferNotAllowed { get; } = new("SelfTransferNotAllowed", ErrorType.Validation, "Transferring to the same account is not allowed.");
+        public static Error ClosureDeniedWithBalance { get; } = new("ClosureDeniedWithBalance", ErrorType.Validation, "Account closure is not permitted while a positive balance remains. Transfer or withdraw all funds first.");
     }
 }

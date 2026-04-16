@@ -25,14 +25,14 @@ else
 				@switch (account.Type)
 				{
 					case TransactionType.Deposit:
-						<text>@account.Amount deposited to @account.RecipientId</text>
+						<text>@account.Amount deposited to @account.RecipientAccountCode</text>
 						break;
 					case TransactionType.Withdrawal:
-						<text>@account.Amount withdrawn from @account.SenderId</text>
+						<text>@account.Amount withdrawn from @account.SenderAccountCode</text>
 						break;
 					case TransactionType.Transfer:
-						<text>@account.Amount transferred from @account.SenderId (@account.SenderName) 
-							to @account.RecipientId (@account.RecipientName)</text>
+						<text>@account.Amount transferred from @account.SenderAccountCode (@account.SenderName) 
+							to @account.RecipientAccountCode (@account.RecipientName)</text>
 						break;
 				}
 			</td>
