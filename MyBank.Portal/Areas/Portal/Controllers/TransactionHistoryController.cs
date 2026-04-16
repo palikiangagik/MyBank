@@ -3,6 +3,7 @@ using MyBank.Portal.Areas.Portal.ViewModels;
 using MyBank.Portal.Contracts.Account;
 using System.Linq;
 using System.Threading.Tasks;
+using MyBank.Portal.ViewModels;
 
 
 namespace MyBank.Portal.Areas.Portal.Controllers
@@ -16,11 +17,12 @@ namespace MyBank.Portal.Areas.Portal.Controllers
             _accountService = accountService;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1)
         {
-            // TODO : add pagination
+            int pageSize = 10;
+
             var result = await _accountService.GetTransactionHistoryAsync(UserNameIdentifier,
-                1, int.MaxValue);
+                page, pageSize);
 
             if (!result.IsSuccess)
                 return Failure(result);
@@ -37,7 +39,8 @@ namespace MyBank.Portal.Areas.Portal.Controllers
                 }).ToList();
 
             return View(new TransactionHistoryViewModel {
-                Transactions = transactions
+                Transactions = transactions,
+                PageViewModel = new PageViewModel(result.Value.TotalCount, page, pageSize)
             });            
         }
     }

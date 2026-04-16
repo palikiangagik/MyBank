@@ -1,6 +1,7 @@
-﻿using System;
+﻿using MyBank.Portal.Data.Models;
+using MyBank.Portal.ViewModels;
+using System;
 using System.Collections.Generic;
-using MyBank.Portal.Data.Models;
 
 namespace MyBank.Portal.Areas.Portal.ViewModels
 {
@@ -18,5 +19,6 @@ namespace MyBank.Portal.Areas.Portal.ViewModels
     public class TransactionHistoryViewModel
     {
         public List<TransactionHistoryViewItem> Transactions { get; set; }
+        public PageViewModel PageViewModel { get; set; }
     }
 }

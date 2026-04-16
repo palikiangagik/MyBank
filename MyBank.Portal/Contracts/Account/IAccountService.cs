@@ -37,11 +37,11 @@ namespace MyBank.Portal.Contracts.Account
         /// <param name="currentUserId"> The ID of the current user.</param>
         /// <param name="balance"> The initial balance of the account. Must be greater than or equal to zero.</param>
         /// <returns>
-        /// <see cref = "Result.Success" /> If successfully opened.
+        /// <see cref = "Result{AccountOpenDTO}" /> If successfully opened.
         /// <see cref="Errors.UserNotFound"/> If currentUserId is not found.
         /// <see cref="Errors.NegativeAmount"/> If the amount is less than zero.
         /// </returns>
-        Task<Result> OpenNewAccountAsync(string currentUserId, decimal balance);
+        Task<Result<AccountOpenDTO>> OpenNewAccountAsync(string currentUserId, decimal balance);
 
         /// <summary>
         /// Close current user's account.

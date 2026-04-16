@@ -88,7 +88,7 @@ namespace MyBank.Portal.Services.Account
             };
         }
 
-        public async Task<Result> OpenNewAccountAsync(string currentUserId, decimal balance)
+        public async Task<Result<AccountOpenDTO>> OpenNewAccountAsync(string currentUserId, decimal balance)
         {
             var userExists = await _context.Users.AnyAsync(u => u.Id == currentUserId);
             if (!userExists)
@@ -97,15 +97,15 @@ namespace MyBank.Portal.Services.Account
             if (balance < 0)
                 return Errors.NegativeAmount;
             
-            await _context.Accounts.AddAsync(
-                new  Data.Models.Account {
-                    UserId = currentUserId,
-                    Balance = balance
-                }
-            );
+            var account = new Data.Models.Account
+            {
+                UserId = currentUserId,
+                Balance = balance
+            };
 
+            await _context.Accounts.AddAsync(account);
             await _context.SaveChangesAsync();
-            return Result.Success();
+            return new AccountOpenDTO { Id = account.Id };
         }
 
         public async Task<Result> CloseAccountAsync(string currentUserId, int accountId)
