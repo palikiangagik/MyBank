@@ -48,13 +48,13 @@ namespace MyBank.Portal.Areas.Portal.Controllers
             var accountFromResult = await _accountService.GetAccountsAsync(UserNameIdentifier, 1, int.MaxValue);
 
             if (!accountFromResult.IsSuccess)
-                return Failure(accountFromResult, action);
+                return Failure(accountFromResult, null, action);
 
             // TODO: add pagination
             var accountToResult = await _accountService.GetDestinationAccountsAsync(UserNameIdentifier, 1, int.MaxValue);
 
             if (!accountToResult.IsSuccess)
-                return Failure(accountToResult, action);
+                return Failure(accountToResult, null, action);
 
             viewModel.FromAccounts = accountFromResult.Value?.Items
             .Select(acc => new SelectListItem

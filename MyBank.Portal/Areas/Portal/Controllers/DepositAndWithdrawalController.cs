@@ -72,7 +72,7 @@ namespace MyBank.Portal.Areas.Portal.Controllers
            );
 
             if (!getResult.IsSuccess)
-                return Failure(getResult, action);
+                return Failure(getResult, null, action);
 
             viewModel.Accounts = getResult.Value?.Items.Select(acc => new SelectListItem
             {

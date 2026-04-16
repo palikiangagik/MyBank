@@ -181,10 +181,10 @@ namespace MyBank.Portal.Services.Account
 
             await _context.Transactions.AddAsync(new Transaction
             {
-                Type = TransactionType.Deposit,
+                Type = TransactionType.Withdrawal,
                 Amount = amount,
-                Sender = null,
-                Recipient = account
+                Sender = account,
+                Recipient = null
             });
 
             account.Balance -= amount;
