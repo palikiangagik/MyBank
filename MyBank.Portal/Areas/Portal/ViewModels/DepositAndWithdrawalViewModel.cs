@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MyBank.Portal.Areas.Portal.ViewModels
 {    
-    public class DepositAndWithdrawalViewModel
+    public class DepositAndWithdrawalViewModel : BaseViewModel
     {
         public List<SelectListItem> Accounts { get; set; }
         [Display(Name = "Account")]

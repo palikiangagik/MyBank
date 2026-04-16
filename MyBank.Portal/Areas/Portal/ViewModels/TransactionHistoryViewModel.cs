@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace MyBank.Portal.Areas.Portal.ViewModels
 {
-    public class TransactionHistoryViewItem
+    public class TransactionHistoryViewItem : BaseViewModel
     {
         public TransactionType Type { get; set; }
         public DateTime CreatedAt { get; set; }

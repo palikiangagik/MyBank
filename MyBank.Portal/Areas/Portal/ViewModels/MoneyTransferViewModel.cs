@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MyBank.Portal.Areas.Portal.ViewModels
 {
-    public class MoneyTransferViewModel
+    public class MoneyTransferViewModel : BaseViewModel
     {
         public List<SelectListItem> FromAccounts { get; set; }
         public List<SelectListItem> ToAccounts { get; set; }

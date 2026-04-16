@@ -2,7 +2,7 @@
 
 namespace MyBank.Portal.Areas.Portal.ViewModels
 {
-    public class OpenNewAccountViewModel
+    public class OpenNewAccountViewModel : BaseViewModel
     {
         [Required]
         [Display(Name = "Amount")]

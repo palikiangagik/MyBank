@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MyBank.Portal.Areas.Portal.ViewModels
 {
-    public class ProfileAccountViewItem
+    public class ProfileAccountViewItem : BaseViewModel
     {
         public int Id { get; set; }
         public string Code { get; set; }
