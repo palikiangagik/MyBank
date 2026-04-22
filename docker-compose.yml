@@ -1,11 +1,11 @@
 services:
-  mybank.portal:
-    image: ${DOCKER_REGISTRY-}mybankportal
+  mybank.web:
+    image: ${DOCKER_REGISTRY-}mybankweb
     build:
       context: .
-      dockerfile: MyBank.Portal/Dockerfile
+      dockerfile: MyBank.Web/Dockerfile
     environment:
-      - ConnectionStrings__MyBankPortalContextConnection=Server=db;Database=MyBank;User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=True
+      - ConnectionStrings__MyBankWebContextConnection=Server=db;Database=MyBank;User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=True
   db:
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
