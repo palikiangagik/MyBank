@@ -12,6 +12,10 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["MyBank.Web/MyBank.Web.csproj", "MyBank.Web/"]
+COPY ["MyBank.Infrastructure/MyBank.Infrastructure.csproj", "MyBank.Infrastructure/"]
+COPY ["MyBank.Application/MyBank.Application.csproj", "MyBank.Application/"]
+COPY ["MyBank.Domain/MyBank.Domain.csproj", "MyBank.Domain/"]
+COPY ["CorePrimitives/CorePrimitives.csproj", "CorePrimitives/"]
 RUN dotnet restore "./MyBank.Web/MyBank.Web.csproj"
 COPY . .
 WORKDIR "/src/MyBank.Web"

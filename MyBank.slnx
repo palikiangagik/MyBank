@@ -4,8 +4,12 @@
     <File Path=".env" />
     <File Path=".env.example" />
   </Folder>
+  <Project Path="CorePrimitives/CorePrimitives.csproj" Id="bb854bd5-2e30-45fc-bc64-3e39b8765c88" />
   <Project Path="docker-compose.dcproj">
     <Build />
   </Project>
+  <Project Path="MyBank.Application/MyBank.Application.csproj" Id="6f6904ee-c81c-4a94-af5a-9e2c72fe383d" />
+  <Project Path="MyBank.Domain/MyBank.Domain.csproj" Id="1e4c6f16-2361-4d6a-b8c9-33f23e86f586" />
+  <Project Path="MyBank.Infrastructure/MyBank.Infrastructure.csproj" Id="b3a27935-dacd-4f53-9bdb-733ce6da4436" />
   <Project Path="MyBank.Web/MyBank.Web.csproj" />
 </Solution>
