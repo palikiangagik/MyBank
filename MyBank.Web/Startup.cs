@@ -7,10 +7,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using MyBank.Web.Contracts.Account;
-using MyBank.Web.Data;
+using MyBank.Infrastructure.Persistence;
 using MyBank.Web.Middlewares;
-using MyBank.Web.Services.Account;
 using System;
 
 namespace MyBank.Web
@@ -33,9 +31,9 @@ namespace MyBank.Web
 
             services.AddRazorPages();
 
-            services.AddDbContext<MyBankWebContext>(options =>
+            services.AddDbContext<MyBankIdentityDbContext>(options =>
                 options.UseSqlServer(
-                    Configuration.GetConnectionString("MyBankWebContextConnection"), 
+                    Configuration.GetConnectionString("MyBankWebContextConnection"),
                     sqlOptions => sqlOptions.EnableRetryOnFailure(
                         maxRetryCount: 10, // To handle DB startup delay in Docker
                         maxRetryDelay: TimeSpan.FromSeconds(5),
@@ -48,9 +46,7 @@ namespace MyBank.Web
                 options.SignIn.RequireConfirmedAccount = false;
                 options.SignIn.RequireConfirmedPhoneNumber = false;
                 options.SignIn.RequireConfirmedEmail = false;
-            }).AddEntityFrameworkStores<MyBankWebContext>();
-
-            services.AddTransient<IAccountService, AccountService>();
+            }).AddEntityFrameworkStores<MyBankIdentityDbContext>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

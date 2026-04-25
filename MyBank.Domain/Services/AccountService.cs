@@ -1,5 +1,4 @@
 ﻿using CorePrimitives;
-using MyBank.Application.Interfaces;
 using MyBank.Domain.Entities;
 using MyBank.Domain.Interfaces;
 using MyBank.Domain.ValueObjects;

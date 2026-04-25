@@ -2,7 +2,7 @@
 using MyBank.Domain.ValueObjects;
 using MyBank.Domain.Entities;
 
-namespace MyBank.Application.Interfaces
+namespace MyBank.Domain.Interfaces
 {
     public interface IAccountRepository
     {

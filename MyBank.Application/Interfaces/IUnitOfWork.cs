@@ -1,7 +1,7 @@
 ﻿namespace MyBank.Application.Interfaces
 {
-    public interface IUnitOfWork : IDisposable
+    public interface IUnitOfWork
     {
-        Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+        public Task<int> SaveChangesAsync();
     }
 }

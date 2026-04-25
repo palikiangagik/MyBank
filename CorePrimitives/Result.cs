@@ -4,11 +4,10 @@
 
     public record Result
     {
-        public bool IsSuccess => FailureValue is null;
-        public bool IsFailure => FailureValue is not null;
-        public Failure? FailureValue { get; }
-        public Failure Failure => FailureValue ?? throw new InvalidOperationException("Check IsFailure before accessing Failure.");
-        protected Result(Failure? failureValue) => FailureValue = failureValue;
+        public bool IsSuccess => Failure is null;
+        public bool IsFailure => Failure is not null;
+        public Failure? Failure { get; }
+        protected Result(Failure? failureValue) => Failure = failureValue;
         public static Result Success() => new(null);
         public static Result Fail(Failure failureValue) => new(failureValue);
         public static implicit operator Result(Failure failureValue) => new(failureValue);
@@ -30,6 +29,6 @@
             result.IsFailure ? result : next();
 
         public static Result<T> Then<T>(this Result result, Func<Result<T>> next) => 
-            result.IsFailure ? result.Failure : next();
+            result.IsFailure ? result.Failure! : next();
     }        
 }

@@ -62,12 +62,12 @@ namespace MyBank.Application.UseCases
         {
             Result<Account> getResult = await _accountRepository.GetAsync(currentUserId, accountId);
             if (getResult.IsFailure)
-                return getResult.Failure;
+                return getResult.Failure!;
             Account account = getResult.Value;
 
             Result<WithdrawalTransaction> withdrawResult = await _accountService.WithdrawAsync(account, amount);
             if (withdrawResult.IsFailure)
-                return withdrawResult.Failure;
+                return withdrawResult.Failure!;
             WithdrawalTransaction transaction = withdrawResult.Value;
 
             await _transactionRepository.AddAsync(transaction);
@@ -80,12 +80,12 @@ namespace MyBank.Application.UseCases
         {
             Result<Account> getResult = await _accountRepository.GetAsync(currentUserId, accountId);
             if (getResult.IsFailure)
-                return getResult.Failure;
+                return getResult.Failure!;
             Account account = getResult.Value;
 
             Result<DepositTransaction> depositResult = await _accountService.DepositAsync(account, amount);
             if (depositResult.IsFailure)
-                return depositResult.Failure;
+                return depositResult.Failure!;
             DepositTransaction transaction = depositResult.Value;
 
             await _transactionRepository.AddAsync(transaction);
@@ -99,18 +99,18 @@ namespace MyBank.Application.UseCases
         {
             Result<Account> getSourceResult = await _accountRepository.GetAsync(currentUserId, sourceAccountId);
             if (getSourceResult.IsFailure)
-                return getSourceResult.Failure;
+                return getSourceResult.Failure!;
             Account sourceAccount = getSourceResult.Value;
 
             Result<Account> getDestinationResult = await _accountRepository.GetAsync(destinationAccountId);
             if (getDestinationResult.IsFailure)
-                return getDestinationResult.Failure;
+                return getDestinationResult.Failure!;
             Account destinationAccount = getDestinationResult.Value;
 
             Result<TransferTransaction> transferResult = await _accountService.TransferAsync(sourceAccount,
                 destinationAccount, amount);
             if (transferResult.IsFailure)
-                return transferResult.Failure;
+                return transferResult.Failure!;
             TransferTransaction transaction = transferResult.Value;
 
             await _transactionRepository.AddAsync(transaction);

@@ -11,9 +11,9 @@ namespace MyBank.Web.Areas.Web.ViewModels
     }
 
     public class ProfileViewModel
-    {        
+    {
         public string UserName { get; set; }
         public decimal Balance { get; set; }
-        public List<ProfileAccountViewItem> Accounts { get; set; }
+        public List<ProfileAccountViewItem> Accounts { get; set; } = [];
     }
 }

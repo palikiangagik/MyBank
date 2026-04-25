@@ -11,6 +11,7 @@ namespace MyBank.Application.Interfaces
     public interface IAccountQuerier
     {
         public Task<Result<AccountSummaryDTO>> GetAccountSummaryAsync(string currentUserId, string accountId);
-        public Task<Result<SubList<DestinationAccountDTO>>> GetDestinationAccountListAsync(string currentUserId, int page, int pageSize);
+        public Task<Result<SubList<DestinationAccountDTO>>> GetDestinationAccountListAsync(string currentUserId, 
+            int page, int pageSize);
     }
 }
