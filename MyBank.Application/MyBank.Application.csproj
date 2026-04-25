@@ -6,4 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\CorePrimitives\CorePrimitives.csproj" />
+    <ProjectReference Include="..\MyBank.Domain\MyBank.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

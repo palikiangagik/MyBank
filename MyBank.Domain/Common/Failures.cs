@@ -1,6 +1,6 @@
 ﻿using CorePrimitives;
 
-namespace MyBank.Domain
+namespace MyBank.Domain.Common
 {
     public static class Failures
     {

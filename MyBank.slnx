@@ -4,7 +4,7 @@
     <File Path=".env" />
     <File Path=".env.example" />
   </Folder>
-  <Project Path="CorePrimitives/CorePrimitives.csproj" Id="bb854bd5-2e30-45fc-bc64-3e39b8765c88" />
+  <Project Path="CorePrimitives/CorePrimitives.csproj" Id="095b543f-d14a-46f2-bb20-43476a407cec" />
   <Project Path="docker-compose.dcproj">
     <Build />
   </Project>

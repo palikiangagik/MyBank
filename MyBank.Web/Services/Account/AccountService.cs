@@ -47,7 +47,7 @@ namespace MyBank.Web.Services.Account
                     Balance = acc.Balance
                 }).ToListAsync();
 
-            return new AccountListDTO
+            return new AccountListDTO 
             {
                 Items = items,
                 TotalCount = totalCount,
