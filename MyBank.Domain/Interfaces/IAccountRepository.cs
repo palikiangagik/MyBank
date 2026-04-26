@@ -8,8 +8,8 @@ namespace MyBank.Domain.Interfaces
     {
         public Task<IntId> GetNextIdAsync();
         public Task AddAsync(Account account);
-        public Task<Result<Account>> GetAsync(StringId userId, IntId accountId);
-        public Task<Result<Account>> GetAsync(IntId accountId);
+        public Task<Result<Account>> GetAsync(StringId userId, IntId accountId, bool blockUntilUpdat);
+        public Task<Result<Account>> GetAsync(IntId accountId, bool blockUntilUpdat);
         public Task UpdateAsync(Account account);
     }
 }

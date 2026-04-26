@@ -43,11 +43,14 @@ namespace MyBank.Infrastructure.Persistence.Repositories
             }, transaction: _uow.Transaction);
         }
 
-        public async Task<Result<Account>> GetAsync(StringId userId, IntId accountId)
+        public async Task<Result<Account>> GetAsync(StringId userId, IntId accountId, bool blockUntilUpdate)
         {
             var con = await _uow.GetConnection();
 
-            const string sql = "SELECT * FROM dbo.Accounts WHERE Id = @Id AND UserId = @UserId";
+
+            const string sqlNonBlocking = $"SELECT * FROM dbo.Accounts WHERE Id = @Id AND UserId = @UserId";
+            const string sqlBlocking = $"SELECT * FROM dbo.Accounts WITH (UPDLOCK, ROWLOCK) WHERE Id = @Id AND UserId = @UserId";
+            string sql = blockUntilUpdate ? sqlBlocking : sqlNonBlocking;
 
             var row = await con.QuerySingleOrDefaultAsync<dynamic>(sql,
                 new { Id = accountId.Value, UserId = userId.Value }, 
@@ -60,11 +63,13 @@ namespace MyBank.Infrastructure.Persistence.Repositories
             return new Account(row.Id, row.Code, row.UserId, row.Balance, row.IsClosed);
         }
 
-        public async Task<Result<Account>> GetAsync(IntId accountId)
+        public async Task<Result<Account>> GetAsync(IntId accountId, bool blockUntilUpdate)
         {
             var con = await _uow.GetConnection();
 
-            const string sql = "SELECT * FROM dbo.Accounts WHERE Id = @Id";
+            const string sqlNonBlocking = "SELECT * FROM dbo.Accounts WHERE Id = @Id";
+            const string sqlBlocking = "SELECT * FROM dbo.Accounts WITH (UPDLOCK, ROWLOCK) WHERE Id = @Id";
+            string sql = blockUntilUpdate ? sqlBlocking : sqlNonBlocking;
 
             var row = await con.QuerySingleOrDefaultAsync<dynamic>(sql,
                 new { Id = accountId.Value },

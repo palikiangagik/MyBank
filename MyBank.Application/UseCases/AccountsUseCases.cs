@@ -59,7 +59,7 @@ namespace MyBank.Application.UseCases
         public async Task<Result> CloseAccountAsync(string currentUserId, int accountId)
         {
             await _unitOfWork.BeginTransactionAsync();
-            Result<Account> getResult = await _accountRepository.GetAsync(currentUserId, accountId);
+            Result<Account> getResult = await _accountRepository.GetAsync(currentUserId, accountId, true);
             if (getResult.IsFailure)
                 return getResult;
             Account account = getResult.Value;
@@ -77,7 +77,7 @@ namespace MyBank.Application.UseCases
         {
             await _unitOfWork.BeginTransactionAsync();
 
-            Result<Account> getResult = await _accountRepository.GetAsync(currentUserId, accountId);
+            Result<Account> getResult = await _accountRepository.GetAsync(currentUserId, accountId, true);
             if (getResult.IsFailure)
                 return getResult.Failure!;
             Account account = getResult.Value;
@@ -98,7 +98,7 @@ namespace MyBank.Application.UseCases
         {
             await _unitOfWork.BeginTransactionAsync();
 
-            Result<Account> getResult = await _accountRepository.GetAsync(currentUserId, accountId);
+            Result<Account> getResult = await _accountRepository.GetAsync(currentUserId, accountId, true);
             if (getResult.IsFailure)
                 return getResult.Failure!;
             Account account = getResult.Value;
@@ -120,12 +120,12 @@ namespace MyBank.Application.UseCases
         {
             await _unitOfWork.BeginTransactionAsync();
 
-            Result<Account> getSourceResult = await _accountRepository.GetAsync(currentUserId, sourceAccountId);
+            Result<Account> getSourceResult = await _accountRepository.GetAsync(currentUserId, sourceAccountId, true);
             if (getSourceResult.IsFailure)
                 return getSourceResult.Failure!;
             Account sourceAccount = getSourceResult.Value;
 
-            Result<Account> getDestinationResult = await _accountRepository.GetAsync(destinationAccountId);
+            Result<Account> getDestinationResult = await _accountRepository.GetAsync(destinationAccountId, true);
             if (getDestinationResult.IsFailure)
                 return getDestinationResult.Failure!;
             Account destinationAccount = getDestinationResult.Value;

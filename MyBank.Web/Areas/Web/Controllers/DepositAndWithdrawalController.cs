@@ -3,7 +3,6 @@ using MyBank.Web.Areas.Web.ViewModels;
 using System.Threading.Tasks;
 using CorePrimitives;
 using MyBank.Application.UseCases;
-using MyBank.Application.DTO;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
