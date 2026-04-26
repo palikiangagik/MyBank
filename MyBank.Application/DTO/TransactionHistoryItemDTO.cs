@@ -12,7 +12,7 @@ namespace MyBank.Application.DTO
         public string? SenderAccountCode { get; init; }
         public string? SenderUserName { get; init; }
 
-        public string? RecepientAccountCode { get; init; }
+        public string? RecipientAccountCode { get; init; }
         public string? RecipientUserName { get; init; }
     }
 }

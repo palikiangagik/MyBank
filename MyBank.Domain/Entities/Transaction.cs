@@ -1,5 +1,4 @@
 ﻿using CorePrimitives;
-using MyBank.Domain.Common;
 using MyBank.Domain.ValueObjects;
 
 namespace MyBank.Domain.Entities

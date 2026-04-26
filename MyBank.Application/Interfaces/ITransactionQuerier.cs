@@ -5,7 +5,7 @@ namespace MyBank.Application.Interfaces
 {
     public interface ITransactionQuerier
     {
-        public Task<Result<SubList<TransactionHistoryItemDTO>>> GetTransactionHistoryAsync(
+        public Task<SubList<TransactionHistoryItemDTO>> GetTransactionHistoryAsync(
             string currentUserId, int page, int pageSize);
     }
 }

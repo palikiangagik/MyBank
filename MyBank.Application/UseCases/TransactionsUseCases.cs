@@ -13,7 +13,7 @@ namespace MyBank.Application.UseCases
             _transactionQuerier = transactionQuerier;
         }
 
-        public async Task<Result<SubList<TransactionHistoryItemDTO>>> GetTransactionHistoryAsync(
+        public async Task<SubList<TransactionHistoryItemDTO>> GetTransactionHistoryAsync(
             string currentUserId, int page, int pageSize) =>
             await _transactionQuerier.GetTransactionHistoryAsync(currentUserId, page, pageSize);
     }

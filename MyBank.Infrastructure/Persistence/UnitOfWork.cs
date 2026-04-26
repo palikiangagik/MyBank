@@ -9,7 +9,6 @@ namespace MyBank.Infrastructure.Persistence
     {
         private DbConnection? _connection;
         public DbTransaction? Transaction { get; private set; }
-        public DbTransaction? Trx => Transaction;
 
         private readonly string _connectionString;
 

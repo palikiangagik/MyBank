@@ -21,7 +21,7 @@ namespace MyBank.Infrastructure.Persistence.Repositories
         {
             var con = await _uow.GetConnection();
             const string sql = "SELECT NEXT VALUE FOR dbo.IdSequence";
-            var nextId = await con.QuerySingleAsync<int>(sql, transaction: _uow.Transaction);
+            var nextId = await con.ExecuteScalarAsync<int>(sql, transaction: _uow.Transaction);
             return nextId;
         }
 
@@ -49,7 +49,7 @@ namespace MyBank.Infrastructure.Persistence.Repositories
 
             const string sql = "SELECT * FROM dbo.Accounts WHERE Id = @Id AND UserId = @UserId";
 
-            var row = await con.QueryFirstOrDefaultAsync<dynamic>(sql,
+            var row = await con.QuerySingleOrDefaultAsync<dynamic>(sql,
                 new { Id = accountId.Value, UserId = userId.Value }, 
                 transaction: _uow.Transaction);
 
@@ -66,7 +66,7 @@ namespace MyBank.Infrastructure.Persistence.Repositories
 
             const string sql = "SELECT * FROM dbo.Accounts WHERE Id = @Id";
 
-            var row = await con.QueryFirstOrDefaultAsync<dynamic>(sql,
+            var row = await con.QuerySingleOrDefaultAsync<dynamic>(sql,
                 new { Id = accountId.Value },
                 transaction: _uow.Transaction);
 

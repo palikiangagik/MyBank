@@ -1,4 +1,8 @@
-CREATE SEQUENCE dbo.IdSequence START WITH 1 INCREMENT BY 1;
+IF NOT EXISTS (SELECT * FROM sys.sequences WHERE name = 'IdSequence')
+BEGIN
+    CREATE SEQUENCE dbo.IdSequence START WITH 1 INCREMENT BY 1;
+END
+
 
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Accounts')
 BEGIN
@@ -10,7 +14,10 @@ BEGIN
         IsClosed BIT DEFAULT 0,
         CONSTRAINT FK_Accounts_Users FOREIGN KEY (UserId) REFERENCES AspNetUsers(Id)
     );
+    
+    CREATE INDEX IX_Accounts_UserId ON Accounts(UserId);
 END
+
 
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Transactions')
 BEGIN
@@ -32,4 +39,10 @@ BEGIN
         CONSTRAINT FK_Transactions_Account FOREIGN KEY (AccountId) 
             REFERENCES Accounts(Id)
     );
+
+    CREATE INDEX IX_Transactions_AccountId ON Transactions(AccountId);
+    CREATE INDEX IX_Transactions_SenderAccountId ON Transactions(SenderAccountId) WHERE SenderAccountId IS NOT NULL;
+    CREATE INDEX IX_Transactions_RecipientAccountId ON Transactions(RecipientAccountId) WHERE RecipientAccountId IS NOT NULL;
+    CREATE INDEX IX_Transactions_CreatedAt ON Transactions(CreatedAt DESC);
 END
+

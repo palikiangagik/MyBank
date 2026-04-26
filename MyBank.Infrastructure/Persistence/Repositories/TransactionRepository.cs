@@ -18,7 +18,7 @@ namespace MyBank.Infrastructure.Persistence.Repositories
         {
             var con = await _uow.GetConnection();
             const string sql = "SELECT NEXT VALUE FOR dbo.IdSequence";
-            var nextId = await con.QuerySingleAsync<int>(sql, transaction: _uow.Transaction);
+            var nextId = await con.ExecuteScalarAsync<int>(sql, transaction: _uow.Transaction);
             return nextId;
         }
 

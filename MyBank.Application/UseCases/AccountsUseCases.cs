@@ -27,7 +27,7 @@ namespace MyBank.Application.UseCases
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Result<AccountSummaryDTO>> GetAccountSummaryAsync(string currentUserId, string accountId) =>
+        public async Task<Result<AccountSummaryDTO>> GetAccountSummaryAsync(string currentUserId, int accountId) =>
             await _accountQuerier.GetAccountSummaryAsync(currentUserId, accountId);
 
         public async Task<Result<SubList<DestinationAccountDTO>>> GetDestinationAccountListAsync(

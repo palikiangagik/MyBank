@@ -5,6 +5,6 @@ namespace MyBank.Application.Interfaces
 {
     public interface IProfileQuerier
     {
-        public Task<Result<ProfileSummaryDTO>> GetProfileSummaryAsync(string currentUserId, int page, int pageSize);
+        public Task<ProfileSummaryDTO> GetProfileSummaryAsync(string currentUserId, int page, int pageSize);
     }
 }
