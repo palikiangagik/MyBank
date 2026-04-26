@@ -9,7 +9,7 @@ namespace MyBank.Infrastructure.Persistence
         public MyBankIdentityDbContext(DbContextOptions<MyBankIdentityDbContext> options)
             : base(options)
         {
-            Database.EnsureCreated();
+            //Database.EnsureCreated();
         }
 
         protected override void OnModelCreating(ModelBuilder builder)

@@ -1,7 +1,9 @@
-﻿namespace MyBank.Application.Interfaces
+﻿using System.Data;
+
+namespace MyBank.Application.Interfaces
 {
     public interface IUnitOfWork
     {
-        public Task<int> SaveChangesAsync();
+        public Task SaveChangesAsync();
     }
 }

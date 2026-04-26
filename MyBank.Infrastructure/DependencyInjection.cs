@@ -1,16 +1,14 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-using MyBank.Application;
 using MyBank.Application.Interfaces;
-using MyBank.Application.UseCases;
 using MyBank.Domain.Interfaces;
 using MyBank.Infrastructure.Persistence;
 using MyBank.Infrastructure.Persistence.Queries;
 using MyBank.Infrastructure.Persistence.Repositories;
-using System.Timers;
+using System.Data;
 
 namespace MyBank.Infrastructure
 {
@@ -21,12 +19,11 @@ namespace MyBank.Infrastructure
             // from domain layer 
             services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<ITransactionRepository, TransactionRepository>();
-            
             // from app layer            
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IAccountQuerier, AccountQuerier>();
             services.AddScoped<IProfileQuerier, ProfileQuerier>();
-            services.AddScoped<ITransactionQuerier, TransactionQuerier>();                
+            services.AddScoped<ITransactionQuerier, TransactionQuerier>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>(_ => new UnitOfWork(connectionString));
 
             return services;
         }

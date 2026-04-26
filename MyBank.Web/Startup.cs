@@ -8,9 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MyBank.Application;
 using MyBank.Infrastructure;
-using MyBank.Infrastructure.Persistence;
 using MyBank.Web.Middlewares;
-using System;
 
 namespace MyBank.Web
 {
@@ -34,11 +32,11 @@ namespace MyBank.Web
 
             services.AddRazorPages();
 
+            // App and infra
             services.AddApplication();
             services.AddInfrastructure(connectionString);
 
-            // for identity (internal parts of AddDefaultIdentity)
-
+            // Identity
             services.AddAuthentication(o =>
             {
                 o.DefaultScheme = IdentityConstants.ApplicationScheme;
