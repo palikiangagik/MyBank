@@ -9,6 +9,8 @@ namespace MyBank.Application.DTO
         public DateTime CreatedAt { get; init; }
         public decimal Amount { get; init; }
 
+        public string? AccountCode { get; init; }
+
         public string? SenderAccountCode { get; init; }
         public string? SenderUserName { get; init; }
 

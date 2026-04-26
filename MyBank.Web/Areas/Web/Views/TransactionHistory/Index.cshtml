@@ -20,19 +20,19 @@ else
 		<tr>
 			<td>@account.CreatedAt.ToString("g")</td>
 			<td>
-				@* @switch (account.Type)
+				@switch (account.Type)
 				{
 					case TransactionType.Deposit:
-						<text>@account.Amount deposited to @account.RecipientAccountCode</text>
+						<text>@account.Amount deposited to @account.AccountCode</text>
 						break;
 					case TransactionType.Withdrawal:
-						<text>@account.Amount withdrawn from @account.SenderAccountCode</text>
+							<text>@account.Amount withdrawn from @account.AccountCode</text>
 						break;
 					case TransactionType.Transfer:
 						<text>@account.Amount transferred from @account.SenderAccountCode (@account.SenderName) 
 							to @account.RecipientAccountCode (@account.RecipientName)</text>
 						break;
-				} *@
+				}
 			</td>
 		</tr>
 	}

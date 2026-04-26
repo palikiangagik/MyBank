@@ -72,11 +72,15 @@ namespace MyBank.Infrastructure.Persistence.Queries
             const string sqlRows = @"
                 SELECT A.Id, U.UserName, A.Code FROM Accounts AS A 
                 LEFT JOIN AspNetUsers AS U ON A.UserId=U.Id 
-                WHERE A.IsClosed=0
+                WHERE A.UserId<>@CurrentUserId AND A.IsClosed=0
                 ORDER BY A.Id
                 OFFSET @Offset ROWS
                 FETCH NEXT @Limit ROWS ONLY";
-            var rows = await conn.QueryAsync(sqlRows, new { Offset = (page - 1) * pageSize, Limit = pageSize }, _uow.Transaction);
+            var rows = await conn.QueryAsync(sqlRows, new { 
+                CurrentUserId = currentUserId, 
+                Offset = (page - 1) * pageSize, 
+                Limit = pageSize }, _uow.Transaction
+            );
             var items = rows.Select(row => new DestinationAccountDTO(row.Id, row.UserName, row.Code)).ToList();
 
             return new SubList<DestinationAccountDTO>(items, totalCount);

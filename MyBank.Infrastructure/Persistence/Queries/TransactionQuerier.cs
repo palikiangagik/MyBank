@@ -57,7 +57,7 @@ namespace MyBank.Infrastructure.Persistence.Queries
                     WHERE SenderAccounts.UserId=@CurrentUserId
                        OR RecipientAccounts.UserId=@CurrentUserId
                        OR Accounts.UserId=@CurrentUserId
-                    ORDER BY T.Id
+                    ORDER BY T.Id DESC
                     OFFSET @Offset ROWS
                     FETCH NEXT @Limit ROWS ONLY";
 
@@ -75,6 +75,7 @@ namespace MyBank.Infrastructure.Persistence.Queries
                 Type = (TransactionType)row.Type,
                 CreatedAt = row.CreatedAt,
                 Amount = row.Amount,
+                AccountCode = row.AccountCode,
                 SenderAccountCode = row.SenderAccountCode,
                 SenderUserName = row.SenderUserName,
                 RecipientAccountCode = row.RecipientAccountCode,

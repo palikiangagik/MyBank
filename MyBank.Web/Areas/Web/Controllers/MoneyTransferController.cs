@@ -26,18 +26,17 @@ namespace MyBank.Web.Areas.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Index(MoneyTransferViewModel viewModel)
         {
-            //if (!ModelState.IsValid)
-            //    return await RefillAndReturn(viewModel, nameof(Index));
+            if (!ModelState.IsValid)
+                return await RefillAndReturn(viewModel, nameof(Index));
 
-            //var result = await _accountService.TransferMoneyAsync(UserNameIdentifier, viewModel.FromAccount,
-            //    viewModel.ToAccount, viewModel.Amount);
+            var result = await _accountsUseCases.TransferAsync(UserNameIdentifier, viewModel.FromAccount,
+                viewModel.ToAccount, viewModel.Amount);
 
-            //if (!result.IsSuccess)
-            //    return await RefillAndReturn(viewModel, nameof(Index), result);
-            
-            //// TODO: consider using other approach
-            //TempData["Message"] = $"{result.Value.Amount} sent successfully from " +
-            //    $"{result.Value.SenderCode} to {result.Value.RecepientCode} ({result.Value.RecepientUserName}).";
+            if (!result.IsSuccess)
+                return await RefillAndReturn(viewModel, nameof(Index), result);
+
+            TempData["Message"] = $"{result.Value.Amount} sent successfully from " +
+                $"{result.Value.SenderAccountCode} to {result.Value.RecipientAccountCode} ({result.Value.RecipientAccountCode}).";
             return RedirectToAction(nameof(Index));            
         }
 
@@ -52,14 +51,14 @@ namespace MyBank.Web.Areas.Web.Controllers
             .Select(acc => new SelectListItem
             {
                 Value = acc.Id.ToString(),
-                Text = $"{acc.Code} (Balance: {acc.Balance})" // TODO: move to a helper method
+                Text = $"{acc.Code} (Balance: {acc.Balance})"
             }).ToList();
 
             viewModel.ToAccounts = accountsTo.Items
             .Select(acc => new SelectListItem
             {
                 Value = acc.Id.ToString(),
-                Text = $"{acc.Code} ({acc.UserName})" // TODO: move to a helper method
+                Text = $"{acc.Code} ({acc.UserName})" 
             }).ToList();
 
             if (null != result && !result.IsSuccess)
