@@ -23,8 +23,7 @@ namespace MyBank.Domain.Services
         public async Task<Account> OpenAccountAsync(string userId)
         {
             IntId id = await _accountRepository.GetNextIdAsync();
-            StringId code = await _accountRepository.GetNextCodeAsync();
-            return Account.Open(id, code, userId);
+            return Account.Open(id, userId);
         }
 
         public async Task<Result<WithdrawalTransaction>> WithdrawAsync(Account account, Money amount)

@@ -23,7 +23,8 @@ namespace MyBank.Infrastructure
             services.AddScoped<ITransactionQuerier, TransactionQuerier>();
 
             // for DB
-            services.AddScoped<IUnitOfWork, UnitOfWork>(_ => new UnitOfWork(connectionString));
+            services.AddScoped<UnitOfWork>(_ => new UnitOfWork(connectionString));
+            services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<UnitOfWork>());
             services.AddScoped<MigrationService>();
             services.AddScoped<DevelopmentDbSeeder>();
 

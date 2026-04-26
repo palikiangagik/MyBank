@@ -1,111 +1,106 @@
-﻿namespace MyBank.Infrastructure.Persistence
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using MyBank.Application.UseCases;
+
+namespace MyBank.Infrastructure.Persistence
 {
     public class DevelopmentDbSeeder
     {
-        //readonly private IAccountService _accountService;
-        //readonly private UserManager<IdentityUser> _userManager;
-        //readonly private ILogger<TestDataSeeder> _logger;
+        readonly private UserManager<IdentityUser> _userManager;
+        readonly private AccountsUseCases _accountUseCases;
 
-        //public TestDataSeeder(IAccountService accountService, 
-        //    UserManager<IdentityUser> userManager, ILogger<TestDataSeeder> logger)
-        //{
-        //    _accountService = accountService;
-        //    _userManager = userManager;
-        //    _logger = logger;
-        //}        
-        
-        public async Task Run()
+        public DevelopmentDbSeeder(UserManager<IdentityUser> userManager, 
+            AccountsUseCases accountUseCases)
         {
-            //    try {
-            //        // Check if users already exist to avoid seeding multiple times
-            //        if (await _userManager.Users.AnyAsync())
-            //            return;
-
-            //        await Seed();
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        _logger.LogError(ex, "An error occurred seeding the DB.");
-            //        throw;
-            //    }
-            return;
+            _accountUseCases = accountUseCases;
+            _userManager = userManager;
         }
 
-        //private async Task Seed()
-        //{
+        public async Task Run()
+        {
+            // Check if users already exist to avoid seeding multiple times
+            if (await _userManager.Users.AnyAsync())
+                return;
 
-        //    Dictionary<string, int> userIdAccountIdMap = new Dictionary<string, int>();
-        //    Dictionary<string, string> emailUserIdMap = new Dictionary<string, string>();
+            await Seed();
+        }
 
-        //    // filling with users with random start balance
-        //    var seedData = new List<(string user, decimal balance)>
-        //    {
-        //        ( "andrew@mail.com", 300000m ),
-        //        ( "james@mail.com", 13000m ),
-        //        ( "john@mail.com", 20000m ),
-        //        ( "olivia@mail.com", 7500m ),
-        //        ( "sophia@mail.com", 3250m )
-        //    };
+        private async Task Seed()
+        {
 
-        //    foreach (var (email, balance) in seedData)
-        //    {
-        //        string userId = await CreateUser(email);
-        //        int accountId = await CreateAccount(userId, balance);
-        //        userIdAccountIdMap[userId] = accountId;
-        //        emailUserIdMap[email] = userId;
-        //    }
+            Dictionary<string, int> userIdAccountIdMap = new Dictionary<string, int>();
+            Dictionary<string, string> emailUserIdMap = new Dictionary<string, string>();
 
-        //    // creating multiple transfers from andrew to james to fill the transaction history
-        //    string andrewUserId = emailUserIdMap["andrew@mail.com"];
-        //    int andrewAccountId = userIdAccountIdMap[andrewUserId];
-        //    int jamesAccountId = userIdAccountIdMap[emailUserIdMap["james@mail.com"]];
-        //    for (decimal amount = 10; amount < 400; amount += 10)
-        //    {
-        //        await CreateTransferTransaction(andrewUserId, andrewAccountId, jamesAccountId, amount);
-        //    }
-        //}
+            // filling with users with random start balance
+            var seedData = new List<(string user, decimal balance)>
+            {
+                ( "andrew@mail.com", 300000m ),
+                ( "james@mail.com", 13000m ),
+                ( "john@mail.com", 20000m ),
+                ( "olivia@mail.com", 7500m ),
+                ( "sophia@mail.com", 3250m )
+            };
 
-        //private async Task<string> CreateUser(string email)
-        //{
-        //    IdentityUser user = new IdentityUser
-        //    {
-        //        UserName = email,
-        //        Email = email
-        //    };
+            foreach (var (email, balance) in seedData)
+            {
+                string userId = await CreateUser(email);
+                int accountId = await CreateAccount(userId, balance);
+                userIdAccountIdMap[userId] = accountId;
+                emailUserIdMap[email] = userId;
+            }
 
-        //    var result = await _userManager.CreateAsync(user, "1qaz@WSX");
+            // creating multiple transfers from andrew to james to fill the transaction history
+            string andrewUserId = emailUserIdMap["andrew@mail.com"];
+            int andrewAccountId = userIdAccountIdMap[andrewUserId];
+            int jamesAccountId = userIdAccountIdMap[emailUserIdMap["james@mail.com"]];
+            for (decimal amount = 10; amount < 400; amount += 10)
+            {
+                await CreateTransferTransaction(andrewUserId, andrewAccountId, jamesAccountId, amount);
+            }
+        }
 
-        //    if (!result.Succeeded)
-        //    {
-        //        var errorMessages = string.Join("; ", result.Errors.Select(e => e.Description));
-        //        throw new Exception($"Identity Error: {errorMessages}");
-        //    }
+        private async Task<string> CreateUser(string email)
+        {
+            IdentityUser user = new IdentityUser
+            {
+                UserName = email,
+                Email = email
+            };
 
-        //    return user.Id;
-        //}
+            var result = await _userManager.CreateAsync(user, "1qaz@WSX");
 
-        //private async Task<int> CreateAccount(string userId, decimal balance)
-        //{
-        //    var result = await _accountService.OpenNewAccountAsync(userId, balance);
-        //    if (!result.IsSuccess)
-        //    {
-        //        throw new Exception($"Failed to create account for user with id {userId}: {result.Error}");
-        //    }
-        //    return result.Value.Id;
-        //}
+            if (!result.Succeeded)
+            {
+                var errorMessages = string.Join("; ", result.Errors.Select(e => e.Description));
+                throw new Exception($"Identity Error: {errorMessages}");
+            }
 
-        //private async Task CreateTransferTransaction(string userFromId, 
-        //    int accountFromId, int accountToId, decimal amount)
-        //{
-        //    var result = await _accountService.TransferMoneyAsync(userFromId, accountFromId, 
-        //        accountToId, amount);
-        //    if (!result.IsSuccess)
-        //    {
-        //        throw new Exception($"Failed to create transfer transaction from account with id {accountFromId} to account " +
-        //            $"with id {accountToId}: {result.Error}");
-        //    }
-        //}
+            return user.Id;
+        }
 
-        
+        private async Task<int> CreateAccount(string userId, decimal balance)
+        {
+            var result = await _accountUseCases.OpenAccountAsync(userId);
+            if (!result.IsSuccess)
+                throw new Exception($"Failed to create account for user with id {userId}: {result.Failure}");
+
+            var depositResult = await _accountUseCases.DepositAsync(userId, result.Value.Id, balance);
+            if (!depositResult.IsSuccess)
+                throw new Exception($"Failed to deposit initial balance for user with id {userId}: {depositResult.Failure}");
+
+            return result.Value.Id;
+        }
+
+        private async Task CreateTransferTransaction(string userFromId,
+            int accountFromId, int accountToId, decimal amount)
+        {
+            var result = await _accountUseCases.TransferAsync(userFromId, accountFromId, accountToId, amount);
+            if (!result.IsSuccess)
+            {
+                throw new Exception($"Failed to create transfer transaction of {amount} from account with " +
+                    $"id {accountFromId} to account " +
+                    $"with id {accountToId}: {result.Failure}");
+            }
+        }
     }
 }

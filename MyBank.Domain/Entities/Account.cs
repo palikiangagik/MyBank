@@ -51,8 +51,9 @@ namespace MyBank.Domain.Entities
             return Result.Success();
         }
 
-        internal static Account Open(IntId id, StringId code, StringId userId)
+        internal static Account Open(IntId id, StringId userId)
         {
+            string code = ((int)id).ToString("D6");
             return new Account(id, code, userId, 0m, false);
         }
 

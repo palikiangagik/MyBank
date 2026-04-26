@@ -1,11 +1,11 @@
 ﻿using System.Data;
+using System.Data.Common;
 
 namespace MyBank.Application.Interfaces
 {
     public interface IUnitOfWork
     {
-        public IDbConnection Connection { get; }
-        public IDbTransaction Transaction { get; }
-        public Task SaveChangesAsync();
+        public Task BeginTransactionAsync();
+        public Task CommitAsync();
     }
 }

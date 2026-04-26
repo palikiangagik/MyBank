@@ -1,16 +1,16 @@
 ﻿using Dapper;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection;
 using MyBank.Application.Interfaces;
+using System.Reflection;
 
 namespace MyBank.Infrastructure.Persistence
 {
     public class MigrationService
     {
         private readonly MyBankIdentityDbContext _identityContext;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly UnitOfWork _unitOfWork;
 
-        public MigrationService(MyBankIdentityDbContext identityContext, IUnitOfWork unitOfWork)
+        public MigrationService(MyBankIdentityDbContext identityContext, UnitOfWork unitOfWork)
         {
             _identityContext = identityContext;
             _unitOfWork = unitOfWork;
@@ -18,10 +18,11 @@ namespace MyBank.Infrastructure.Persistence
 
         public async Task ApplyMigrationsAsync()
         {
-            _identityContext.Database.Migrate();
+            await _identityContext.Database.MigrateAsync();
 
             string setupSql = await GetSqlScript("InitialSetup.sql");
-            await _unitOfWork.Connection.ExecuteAsync(setupSql);
+            var conn = await _unitOfWork.GetConnection();
+            await conn.ExecuteAsync(setupSql);
         }
 
         private async Task<string> GetSqlScript(string fileName)

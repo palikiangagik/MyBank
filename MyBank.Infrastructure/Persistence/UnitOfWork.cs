@@ -5,57 +5,89 @@ using System.Data.Common;
 
 namespace MyBank.Infrastructure.Persistence
 {
-    public class UnitOfWork : IUnitOfWork
+    public class UnitOfWork : IUnitOfWork, IDisposable, IAsyncDisposable
     {
+        private DbConnection? _connection;
+        public DbTransaction? Transaction { get; private set; }
+        public DbTransaction? Trx => Transaction;
+
         private readonly string _connectionString;
-        private IDbConnection? _connection;
-        private IDbTransaction? _transaction;
 
-        public UnitOfWork(string connectionString)
+        public UnitOfWork(string connectionString) => _connectionString = connectionString;
+
+        public async Task<DbConnection> GetConnection()
         {
-            _connectionString = connectionString;
+            await EnsureConnectionOpenAsync();
+            return _connection!;
         }
 
-        public IDbConnection Connection
+        public async Task BeginTransactionAsync()
         {
-            get
-            {
-                if (_connection is null)
-                {
-                    _connection = new SqlConnection(_connectionString);
-                    _connection.Open();
-                }
-                return _connection;
-            }
-        }
-
-        public IDbTransaction Transaction => _transaction ??= Connection.BeginTransaction();
-
-        public async Task SaveChangesAsync()
-        {
-            if (_transaction is null) 
+            if (Transaction is not null) 
                 return;
+            if (_connection is null)
+                await EnsureConnectionOpenAsync();
+            Transaction = await _connection!.BeginTransactionAsync();
+        }
+
+        public async Task CommitAsync()
+        {
+            if (Transaction is null)
+                throw new InvalidOperationException("No active transaction to commit.");    
 
             try
             { 
-                await ((SqlTransaction)_transaction).CommitAsync();
+                await Transaction.CommitAsync();
             }
             catch
             {
-                await ((SqlTransaction)_transaction).RollbackAsync();
+                await Transaction.RollbackAsync();
                 throw;
             }
             finally
             {
-                _transaction.Dispose();
-                _transaction = null; 
+                await Transaction.DisposeAsync();
+                Transaction = null; 
             }
         }
 
         public void Dispose()
         {
-            _transaction?.Dispose();
-            _connection?.Dispose();
+            if (Transaction is not null)
+            {
+                Transaction.Dispose();
+                Transaction = null;
+            }
+
+            if (_connection is not null)
+            {
+                _connection.Dispose();
+                _connection = null;
+            }
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            if (Transaction is not null)
+            {
+                await Transaction.DisposeAsync();
+                Transaction = null;
+            }
+
+            if (_connection is not null)
+            {
+                await _connection.DisposeAsync();
+                _connection = null;
+            }
+        }
+
+        private async Task EnsureConnectionOpenAsync()
+        {
+            if (_connection is null)
+            {
+                _connection = new SqlConnection(_connectionString);
+                await _connection.OpenAsync();
+            }
         }
     }
 }
