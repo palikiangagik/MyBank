@@ -1,17 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-
-namespace MyBank.Web
+﻿namespace MyBank.Infrastructure.Persistence
 {
-    public class TestDataSeeder
+    public class DevelopmentDbSeeder
     {
         //readonly private IAccountService _accountService;
         //readonly private UserManager<IdentityUser> _userManager;
@@ -25,21 +14,22 @@ namespace MyBank.Web
         //    _logger = logger;
         //}        
         
-        //public async Task Run()
-        //{
-        //    try {
-        //        // Check if users already exist to avoid seeding multiple times
-        //        if (await _userManager.Users.AnyAsync())
-        //            return;
+        public async Task Run()
+        {
+            //    try {
+            //        // Check if users already exist to avoid seeding multiple times
+            //        if (await _userManager.Users.AnyAsync())
+            //            return;
 
-        //        await Seed();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(ex, "An error occurred seeding the DB.");
-        //        throw;
-        //    }
-        //}
+            //        await Seed();
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        _logger.LogError(ex, "An error occurred seeding the DB.");
+            //        throw;
+            //    }
+            return;
+        }
 
         //private async Task Seed()
         //{

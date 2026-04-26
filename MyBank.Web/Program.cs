@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using MyBank.Infrastructure.Persistence;
 using System.Threading.Tasks;
 
 namespace MyBank.Web
@@ -11,19 +14,18 @@ namespace MyBank.Web
             var host = CreateHostBuilder(args).Build();
 
             // Applying migrations and seeding test data if run in dev environment
-            //using (var scope = host.Services.CreateScope())
-            //{
-            //    var services = scope.ServiceProvider;
-            //    var context = services.GetRequiredService<MyBankWebContext>();
-            //    var accountService = services.GetRequiredService<IAccountService>();
-            //    var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
-            //    var logger = services.GetRequiredService<ILogger<TestDataSeeder>>();
-            //    var env = services.GetRequiredService<IHostEnvironment>();
-
-            //    context.Database.Migrate(); 
-            //    if (env.IsDevelopment())
-            //        await new TestDataSeeder(accountService, userManager, logger).Run();
-            //}
+            using (var scope = host.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+                var env = services.GetRequiredService<IHostEnvironment>();
+                var migrationService = services.GetRequiredService<MigrationService>();
+                await migrationService.ApplyMigrationsAsync();
+                if (env.IsDevelopment())
+                {
+                    var seeder = services.GetRequiredService<DevelopmentDbSeeder>();
+                    await seeder.Run();
+                }
+            }
 
             await host.RunAsync();
         }

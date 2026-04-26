@@ -8,15 +8,15 @@ namespace MyBank.Infrastructure.Persistence
     public class UnitOfWork : IUnitOfWork
     {
         private readonly string _connectionString;
-        private SqlConnection? _connection;
-        private SqlTransaction? _transaction;
+        private IDbConnection? _connection;
+        private IDbTransaction? _transaction;
 
         public UnitOfWork(string connectionString)
         {
             _connectionString = connectionString;
         }
 
-        public SqlConnection Connection
+        public IDbConnection Connection
         {
             get
             {
@@ -29,7 +29,7 @@ namespace MyBank.Infrastructure.Persistence
             }
         }
 
-        public SqlTransaction Transaction => _transaction ??= Connection.BeginTransaction();
+        public IDbTransaction Transaction => _transaction ??= Connection.BeginTransaction();
 
         public async Task SaveChangesAsync()
         {
@@ -38,11 +38,11 @@ namespace MyBank.Infrastructure.Persistence
 
             try
             { 
-                await _transaction.CommitAsync();
+                await ((SqlTransaction)_transaction).CommitAsync();
             }
             catch
             {
-                await _transaction.RollbackAsync();
+                await ((SqlTransaction)_transaction).RollbackAsync();
                 throw;
             }
             finally
