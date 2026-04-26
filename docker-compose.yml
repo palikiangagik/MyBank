@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: MyBank.Web/Dockerfile
     environment:
-      - ConnectionStrings__MyBankWebContextConnection=Server=db;Database=MyBank;User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=True
+      - ConnectionStrings__MyBankDBConnection=Server=db;Database=MyBank;User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=True
   db:
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:

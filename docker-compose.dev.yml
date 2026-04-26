@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: MyBank.Web/Dockerfile
     environment:
-      - ConnectionStrings__MyBankWeblContextConnection=Server=db;Database=MyBank;User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=True
+      - ConnectionStrings__MyBankDBConnection=Server=db;Database=MyBank;User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=True
       - ASPNETCORE_ENVIRONMENT=${APP_ENV}
       - ASPNETCORE_URLS=${APP_URLS}
       - ASPNETCORE_Kestrel__Certificates__Default__Password=${CERT_PASSWORD}

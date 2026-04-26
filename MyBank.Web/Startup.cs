@@ -1,12 +1,13 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using MyBank.Application;
+using MyBank.Infrastructure;
 using MyBank.Infrastructure.Persistence;
 using MyBank.Web.Middlewares;
 using System;
@@ -25,31 +26,30 @@ namespace MyBank.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            string connectionString = Configuration.GetConnectionString("MyBankDBConnection");
+
             services.AddControllersWithViews(options => { 
                 options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
             });
 
             services.AddRazorPages();
 
-            services.AddDbContext<MyBankIdentityDbContext>(options =>
-                options.UseSqlServer(
-                    Configuration.GetConnectionString("MyBankWebContextConnection"),
-                    sqlOptions => sqlOptions.EnableRetryOnFailure(
-                        maxRetryCount: 10, // To handle DB startup delay in Docker
-                        maxRetryDelay: TimeSpan.FromSeconds(5),
-                        errorNumbersToAdd: null
-                    )
-                )
-            );
+            services.AddApplication();
+            services.AddInfrastructure(connectionString);
 
-            services.AddDefaultIdentity<IdentityUser>(options => {
-                options.SignIn.RequireConfirmedAccount = false;
-                options.SignIn.RequireConfirmedPhoneNumber = false;
-                options.SignIn.RequireConfirmedEmail = false;
-            }).AddEntityFrameworkStores<MyBankIdentityDbContext>();
+            // for identity (internal parts of AddDefaultIdentity)
+
+            services.AddAuthentication(o =>
+            {
+                o.DefaultScheme = IdentityConstants.ApplicationScheme;
+                o.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+            }).AddIdentityCookies(o => { });
+
+            services.AddIdentityInfrastructure(connectionString)
+                .AddDefaultUI()
+                .AddDefaultTokenProviders();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             // To catch unhandled exceptions globally and log them
@@ -62,7 +62,8 @@ namespace MyBank.Web
             else
             {
                 app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                // The default HSTS value is 30 days. You may want to change this for production scenarios,
+                // see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
             app.UseHttpsRedirection();

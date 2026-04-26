@@ -27,4 +27,9 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\MyBank.Application\MyBank.Application.csproj" />
+    <ProjectReference Include="..\MyBank.Infrastructure\MyBank.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>
