@@ -28,7 +28,7 @@ BEGIN
         Amount DECIMAL(18, 2) NOT NULL,
         SenderAccountId INT NULL,
         RecipientAccountId INT NULL,
-        AccountId INT NULL
+        AccountId INT NULL,
 
         CONSTRAINT FK_Transactions_Sender FOREIGN KEY (SenderAccountId) 
             REFERENCES Accounts(Id),
