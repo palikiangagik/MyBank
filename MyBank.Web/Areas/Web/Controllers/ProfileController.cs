@@ -1,41 +1,39 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MyBank.Web.Areas.Web.ViewModels;
 using System.Threading.Tasks;
+using System.Linq;
+using MyBank.Application.UseCases;
+using MyBank.Application.DTO;
 
 namespace MyBank.Web.Areas.Web.Controllers
 {
     public class ProfileController : BaseController
     {
-        //private readonly  IAccountService _accountService;
+        private readonly ProfileUseCases _profileUseCases;
+        private readonly AccountsUseCases _accountsUseCases;
 
-        //public ProfileController(IAccountService accountService)
-        //{
-        //    _accountService = accountService;
-        //}
+        public ProfileController(ProfileUseCases profileUseCases, AccountsUseCases accountsUseCases)
+        {
+            _profileUseCases = profileUseCases;
+            _accountsUseCases = accountsUseCases;
+        }
 
         public async Task<IActionResult> Index()
         {
-            //var result = await _accountService.GetAccountsAsync(
-            //    UserNameIdentifier, 
-            //    1, 
-            //    int.MaxValue // TODO: add pagination support
-            //);
+            var summary = await _profileUseCases.GetProfileSummaryAsync(UserNameIdentifier, 1, int.MaxValue);
 
-            //if (!result.IsSuccess)
-            //    return Failure(result);
-
-            //return View(new ProfileViewModel {
-            //    UserName = UserName,
-            //    Balance = result.Value.TotalBalance,
-            //    Accounts = result.Value
-            //    .Items
-            //    .Select(acc => new ProfileAccountViewItem
-            //    {
-            //        Id = acc.Id,
-            //        Code = acc.Code,
-            //        Balance = acc.Balance
-            //    }).ToList()
-            return View(new ProfileViewModel());//});
+            return View(new ProfileViewModel
+            {
+                UserName = UserName,
+                Balance = summary.TotalBalance,
+                Accounts = summary.AccountList.Items
+                .Select(acc => new ProfileAccountViewItem
+                {
+                    Id = acc.Id,
+                    Code = acc.Code,
+                    Balance = acc.Balance
+                }).ToList()
+            });
         }
 
         public async Task<IActionResult> OpenNewAccount()
@@ -47,44 +45,46 @@ namespace MyBank.Web.Areas.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> OpenNewAccount(OpenNewAccountViewModel viewModel)
         {
-            //if (!ModelState.IsValid)
-            //    return View(viewModel);
+            if (!ModelState.IsValid)
+                return View(viewModel);
 
-            //var result = await _accountService.OpenNewAccountAsync(UserNameIdentifier, viewModel.Amount);
+            var result = await _accountsUseCases.OpenAccountAsync(UserNameIdentifier, viewModel.Amount);
 
-            //if (!result.IsSuccess)
-            //    return Failure(result, viewModel);            
+            if (!result.IsSuccess)
+                return Failure(result, viewModel);
 
             return RedirectToAction(nameof(Index));
         }
 
         public async Task<IActionResult> CloseAccount(int id)
         {
-            //var result = await _accountService.GetAccount(UserNameIdentifier, id);
+            var result = await _accountsUseCases.GetAccountSummaryAsync(UserNameIdentifier, id);
 
-            //if (!result.IsSuccess)
-            //    return Failure(result);
+            if (!result.IsSuccess)
+                return Failure(result);
+            AccountSummaryDTO dto = result.Value;
 
-            //return View(new CloseAccountViewModel { 
-            //    Id = result.Value.Id,
-            //    Code = result.Value.Code,
-            //    Balance = result.Value.Balance
-            return View();//});
+            return View(new CloseAccountViewModel
+            {
+                Id = dto.Id,
+                Code = dto.Code,
+                Balance = dto.Balance
+            });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CloseAccount(CloseAccountViewModel viewModel)
         {
-            //if (!ModelState.IsValid)
-            //    return View(viewModel);
+            if (!ModelState.IsValid)
+                return View(viewModel);
 
-            //var result = await _accountService.CloseAccountAsync(UserNameIdentifier, viewModel.Id);
+            var result = await _accountsUseCases.CloseAccountAsync(UserNameIdentifier, viewModel.Id);
 
-            //if (!result.IsSuccess)
-            //    return Failure(result, viewModel);
+            if (!result.IsSuccess)
+                return Failure(result, viewModel);
 
-            return View();//return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Index));
         }
     }
 }

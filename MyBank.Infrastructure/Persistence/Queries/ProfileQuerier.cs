@@ -21,7 +21,7 @@ namespace MyBank.Infrastructure.Persistence.Queries
             decimal totalBalance = 0;
             List<ProfileSummaryAccountItemDTO> items = [];
 
-            const string sqlTotalCount = "SELECT COUNT(*) FROM Accounts WHERE UserId = @UserId";
+            const string sqlTotalCount = "SELECT COUNT(*) FROM Accounts WHERE UserId = @UserId AND IsClosed=0";
             int totalCount = await conn.ExecuteScalarAsync<int>(sqlTotalCount, new
             {
                 UserId = currentUserId
@@ -30,18 +30,16 @@ namespace MyBank.Infrastructure.Persistence.Queries
 
             if (totalCount > 0)
             {
-                const string sqlTotalBalance = "SELECT SUM(Balance) FROM Accounts WHERE UserId = @UserId";
+                const string sqlTotalBalance = "SELECT SUM(Balance) FROM Accounts WHERE UserId = @UserId AND IsClosed=0";
                 totalBalance = await conn.ExecuteScalarAsync<decimal>(sqlTotalBalance, new
                 {
                     UserId = currentUserId
                 }, _uow.Transaction);
 
-
-
                 const string sqlAccounts = @"
                     SELECT Id, Code, Balance
                     FROM Accounts
-                    WHERE UserId=@UserId
+                    WHERE UserId=@UserId AND IsClosed=0
                     ORDER BY Id
                     OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY";
                 var rows = await conn.QueryAsync(sqlAccounts, new

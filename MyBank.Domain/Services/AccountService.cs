@@ -20,10 +20,25 @@ namespace MyBank.Domain.Services
             _transactionRepository = transactionRepository;
         }
 
-        public async Task<Account> OpenAccountAsync(string userId)
+        public async Task<Result<(Account, DepositTransaction?)>> OpenAccountAsync(string userId, Money balance)
         {
-            IntId id = await _accountRepository.GetNextIdAsync();
-            return Account.Open(id, userId);
+            IntId accountId = await _accountRepository.GetNextIdAsync();
+
+            Account account = Account.Open(accountId, userId);
+            DepositTransaction? transaction = null;
+
+            if (balance > 0)
+            {
+                IntId transactionId = await _transactionRepository.GetNextIdAsync();
+
+                var transactionResult = account.Deposit(balance)
+                    .Then(() => DepositTransaction.Create(transactionId, balance, account.Id));
+                if (transactionResult.IsFailure)
+                    return transactionResult.Failure!;
+                transaction = transactionResult.Value;
+            }
+
+            return (account, transaction);
         }
 
         public async Task<Result<WithdrawalTransaction>> WithdrawAsync(Account account, Money amount)

@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using CorePrimitives;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using MyBank.Web.Areas.Web.ViewModels;
 
 namespace MyBank.Web.Areas.Web.Controllers
 {
@@ -21,26 +23,21 @@ namespace MyBank.Web.Areas.Web.Controllers
         /// <param name="action">(Optional) The name of the action to return to in case of validation errors. 
         /// If null - current action is used.</param>
         /// <returns>An IActionResult representing the outcome of the operation.</returns>
-        //protected IActionResult Failure(Result result,  BaseViewModel viewModel = null, string action = null)
-        //{
-        //    if (result.Error == null)
-        //        return StatusCode(500, "An unknown error occurred.");
+        protected IActionResult Failure(Result result, BaseViewModel viewModel = null, string action = null)
+        {
+            if (result.Failure is null)
+                return StatusCode(500, "An unknown error occurred.");
 
-        //    if (null != viewModel && result.Error.Type == ErrorType.Validation)
-        //    {
-        //        ModelState.AddModelError(string.Empty, result.Error.Description);
-        //        if (string.IsNullOrEmpty(action))
-        //            return View(viewModel);
-        //        else
-        //            return View(action, viewModel);
-        //    }
+            if (viewModel is not null)
+            {
+                ModelState.AddModelError(string.Empty, result.Failure.Description);
+                if (string.IsNullOrEmpty(action))
+                    return View(viewModel);
+                else
+                    return View(action, viewModel);
+            }
 
-        //    return result.Error.Type switch
-        //    {
-        //        ErrorType.NotFound => NotFound(result.Error.Description),
-        //        ErrorType.Validation => BadRequest(result.Error.Description),
-        //        _ => StatusCode(500, result.Error.Description)
-        //    };
-        //}
+            return BadRequest(result.Failure.Description);
+        }
     }
 }

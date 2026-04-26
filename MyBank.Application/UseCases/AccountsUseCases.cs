@@ -27,18 +27,31 @@ namespace MyBank.Application.UseCases
             _unitOfWork = unitOfWork;
         }
 
+
         public async Task<Result<AccountSummaryDTO>> GetAccountSummaryAsync(string currentUserId, int accountId) =>
             await _accountQuerier.GetAccountSummaryAsync(currentUserId, accountId);
 
-        public async Task<Result<SubList<DestinationAccountDTO>>> GetDestinationAccountListAsync(
+        public async Task<SubList<AccountSummaryDTO>> GetUserAccountListAsync(string currentUserId, int page, int pageSize) =>
+            await _accountQuerier.GetUserAccountListAsync(currentUserId, page, pageSize);
+
+
+        public async Task<SubList<DestinationAccountDTO>> GetDestinationAccountListAsync(
             string currentUserId, int page, int pageSize) =>
             await _accountQuerier.GetDestinationAccountListAsync(currentUserId, page, pageSize);
 
-        public async Task<Result<AccountSummaryDTO>> OpenAccountAsync(string currentUserId)
+        public async Task<Result<AccountSummaryDTO>> OpenAccountAsync(string currentUserId, decimal balance)
         {
             await _unitOfWork.BeginTransactionAsync();
-            Account account = await _accountService.OpenAccountAsync(currentUserId);
+            
+            var result = await _accountService.OpenAccountAsync(currentUserId, balance);
+            if (result.IsFailure)
+                return result.Failure!;
+            var (account, transaction) = result.Value;
+
             await _accountRepository.AddAsync(account);
+            if (transaction is not null)
+                await _transactionRepository.AddAsync(transaction);
+
             await _unitOfWork.CommitAsync();
             return new AccountSummaryDTO(account.Id, account.Code, account.Balance);
         }
@@ -78,7 +91,7 @@ namespace MyBank.Application.UseCases
             await _accountRepository.UpdateAsync(account);
 
             await _unitOfWork.CommitAsync();
-            return new WithdrawalTransactionDTO(transaction.CreatedAt, transaction.Amount);
+            return new WithdrawalTransactionDTO(transaction.CreatedAt, transaction.Amount, account.Code);
         }
 
         public async Task<Result<DepositTransactionDTO>> DepositAsync(string currentUserId, int accountId, decimal amount)
@@ -99,7 +112,7 @@ namespace MyBank.Application.UseCases
             await _accountRepository.UpdateAsync(account);
 
             await _unitOfWork.CommitAsync();
-            return new DepositTransactionDTO(transaction.CreatedAt, transaction.Amount);
+            return new DepositTransactionDTO(transaction.CreatedAt, transaction.Amount, account.Code);
         }
 
         public async Task<Result<TransferTransactionDTO>> TransferAsync(string currentUserId,

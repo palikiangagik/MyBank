@@ -80,14 +80,9 @@ namespace MyBank.Infrastructure.Persistence
 
         private async Task<int> CreateAccount(string userId, decimal balance)
         {
-            var result = await _accountUseCases.OpenAccountAsync(userId);
+            var result = await _accountUseCases.OpenAccountAsync(userId, balance);
             if (!result.IsSuccess)
                 throw new Exception($"Failed to create account for user with id {userId}: {result.Failure}");
-
-            var depositResult = await _accountUseCases.DepositAsync(userId, result.Value.Id, balance);
-            if (!depositResult.IsSuccess)
-                throw new Exception($"Failed to deposit initial balance for user with id {userId}: {depositResult.Failure}");
-
             return result.Value.Id;
         }
 
