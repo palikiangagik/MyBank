@@ -15,7 +15,5 @@ namespace MyBank.Application.UseCases
 
         public Task<ProfileSummaryDTO> GetProfileSummaryAsync(string currentUserId, int page, int pageSize) =>
             _profileQuerer.GetProfileSummaryAsync(currentUserId, page, pageSize);
-
-
     }
 }

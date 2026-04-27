@@ -1,7 +1,9 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using CorePrimitives;
+using Microsoft.Data.SqlClient;
 using MyBank.Application.Interfaces;
 using System.Data;
 using System.Data.Common;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace MyBank.Infrastructure.Persistence
 {
@@ -13,6 +15,15 @@ namespace MyBank.Infrastructure.Persistence
         private readonly string _connectionString;
 
         public UnitOfWork(string connectionString) => _connectionString = connectionString;
+        
+        private async Task EnsureConnectionOpenAsync()
+        {
+            if (_connection is null)
+            {
+                _connection = new SqlConnection(_connectionString);
+                await _connection.OpenAsync();
+            }
+        }
 
         public async Task<DbConnection> GetConnection()
         {
@@ -22,11 +33,43 @@ namespace MyBank.Infrastructure.Persistence
 
         public async Task BeginTransactionAsync()
         {
-            if (Transaction is not null) 
-                return;
+            if (Transaction is not null)
+                throw new InvalidOperationException("Transaction already started.");
             if (_connection is null)
                 await EnsureConnectionOpenAsync();
             Transaction = await _connection!.BeginTransactionAsync();
+        }
+
+        public async Task RollbackAsync()
+        {
+            if (Transaction is null)
+                throw new InvalidOperationException("No active transaction to rollback.");
+
+            try
+            {
+                await Transaction.RollbackAsync();
+            }
+            finally
+            {
+                await Transaction.DisposeAsync();
+                Transaction = null;
+            }
+        }
+
+        public void Rollback()
+        {
+            if (Transaction is null)
+                throw new InvalidOperationException("No active transaction to rollback.");
+
+            try
+            {
+                Transaction.Rollback();
+            }
+            finally
+            {
+                Transaction.Dispose();
+                Transaction = null;
+            }
         }
 
         public async Task CommitAsync()
@@ -77,15 +120,6 @@ namespace MyBank.Infrastructure.Persistence
             {
                 await _connection.DisposeAsync();
                 _connection = null;
-            }
-        }
-
-        private async Task EnsureConnectionOpenAsync()
-        {
-            if (_connection is null)
-            {
-                _connection = new SqlConnection(_connectionString);
-                await _connection.OpenAsync();
             }
         }
     }

@@ -41,8 +41,8 @@ namespace MyBank.Application.UseCases
 
         public async Task<Result<AccountSummaryDTO>> OpenAccountAsync(string currentUserId, decimal balance)
         {
-            await _unitOfWork.BeginTransactionAsync();
-            
+            using var trx = await UnitOfWorkScope.StartAsync(_unitOfWork);
+
             var result = await _accountService.OpenAccountAsync(currentUserId, balance);
             if (result.IsFailure)
                 return result.Failure!;
@@ -52,13 +52,13 @@ namespace MyBank.Application.UseCases
             if (transaction is not null)
                 await _transactionRepository.AddAsync(transaction);
 
-            await _unitOfWork.CommitAsync();
+            await trx.CommitAsync();
             return new AccountSummaryDTO(account.Id, account.Code, account.Balance);
         }
 
         public async Task<Result> CloseAccountAsync(string currentUserId, int accountId)
         {
-            await _unitOfWork.BeginTransactionAsync();
+            using var trx = await UnitOfWorkScope.StartAsync(_unitOfWork);
             Result<Account> getResult = await _accountRepository.GetAsync(currentUserId, accountId, true);
             if (getResult.IsFailure)
                 return getResult;
@@ -69,13 +69,13 @@ namespace MyBank.Application.UseCases
                 return closeResult;
 
             await _accountRepository.UpdateAsync(account);
-            await _unitOfWork.CommitAsync();
+            await trx.CommitAsync();
             return Result.Success();
         }
 
         public async Task<Result<WithdrawalTransactionDTO>> WithdrawAsync(string currentUserId, int accountId, decimal amount)
         {
-            await _unitOfWork.BeginTransactionAsync();
+            using var trx = await UnitOfWorkScope.StartAsync(_unitOfWork);
 
             Result<Account> getResult = await _accountRepository.GetAsync(currentUserId, accountId, true);
             if (getResult.IsFailure)
@@ -90,13 +90,13 @@ namespace MyBank.Application.UseCases
             await _transactionRepository.AddAsync(transaction);
             await _accountRepository.UpdateAsync(account);
 
-            await _unitOfWork.CommitAsync();
+            await trx.CommitAsync();
             return new WithdrawalTransactionDTO(transaction.CreatedAt, transaction.Amount, account.Code);
         }
 
         public async Task<Result<DepositTransactionDTO>> DepositAsync(string currentUserId, int accountId, decimal amount)
         {
-            await _unitOfWork.BeginTransactionAsync();
+            using var trx = await UnitOfWorkScope.StartAsync(_unitOfWork);
 
             Result<Account> getResult = await _accountRepository.GetAsync(currentUserId, accountId, true);
             if (getResult.IsFailure)
@@ -111,14 +111,14 @@ namespace MyBank.Application.UseCases
             await _transactionRepository.AddAsync(transaction);
             await _accountRepository.UpdateAsync(account);
 
-            await _unitOfWork.CommitAsync();
+            await trx.CommitAsync();
             return new DepositTransactionDTO(transaction.CreatedAt, transaction.Amount, account.Code);
         }
 
         public async Task<Result<TransferTransactionDTO>> TransferAsync(string currentUserId,
             int sourceAccountId, int destinationAccountId, decimal amount)
         {
-            await _unitOfWork.BeginTransactionAsync();
+            using var trx = await UnitOfWorkScope.StartAsync(_unitOfWork);
 
             Result<Account> getSourceResult = await _accountRepository.GetAsync(currentUserId, sourceAccountId, true);
             if (getSourceResult.IsFailure)
@@ -140,7 +140,7 @@ namespace MyBank.Application.UseCases
             await _accountRepository.UpdateAsync(sourceAccount);
             await _accountRepository.UpdateAsync(destinationAccount);
 
-            await _unitOfWork.CommitAsync();
+            await trx.CommitAsync();
             return new TransferTransactionDTO(transaction.CreatedAt, transaction.Amount,
                 sourceAccount.Code, destinationAccount.Code);
         }
