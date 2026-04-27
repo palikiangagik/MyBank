@@ -2,11 +2,10 @@
 using MyBank.Domain.ValueObjects;
 using MyBank.Domain.Entities;
 
-namespace MyBank.Domain.Interfaces
+namespace MyBank.Application.Interfaces
 {
     public interface IAccountRepository
     {
-        public Task<IntId> GetNextIdAsync();
         public Task AddAsync(Account account);
         public Task<Result<Account>> GetAsync(StringId userId, IntId accountId, bool blockUntilUpdat);
         public Task<Result<Account>> GetAsync(IntId accountId, bool blockUntilUpdat);

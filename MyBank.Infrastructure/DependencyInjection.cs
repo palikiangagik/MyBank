@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 using MyBank.Application.Interfaces;
-using MyBank.Domain.Interfaces;
+using MyBank.Domain.Interfaces; 
 using MyBank.Infrastructure.Persistence;
 using MyBank.Infrastructure.Persistence.Queries;
 using MyBank.Infrastructure.Persistence.Repositories;
@@ -14,10 +14,12 @@ namespace MyBank.Infrastructure
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, string connectionString)
         {
-            // from domain layer 
+            // from domain layer
+            services.AddScoped<IIdGenerator, IdGenerator>();
+
+            // from app layer                        
             services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<ITransactionRepository, TransactionRepository>();
-            // from app layer            
             services.AddScoped<IAccountQuerier, AccountQuerier>();
             services.AddScoped<IProfileQuerier, ProfileQuerier>();
             services.AddScoped<ITransactionQuerier, TransactionQuerier>();
