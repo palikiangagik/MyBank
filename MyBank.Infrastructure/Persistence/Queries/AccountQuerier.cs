@@ -72,8 +72,8 @@ namespace MyBank.Infrastructure.Persistence.Queries
 
             var conn = await _uow.GetConnection();
 
-            const string sqlCount = "SELECT COUNT(*) FROM Accounts WHERE IsClosed=0";
-            int totalCount = await conn.ExecuteScalarAsync<int>(sqlCount, _uow.Transaction);
+            const string sqlCount = "SELECT COUNT(*) FROM Accounts WHERE UserId<>@CurrentUserId AND IsClosed=0";
+            int totalCount = await conn.ExecuteScalarAsync<int>(sqlCount, new { CurrentUserId = currentUserId }, _uow.Transaction);
 
             const string sqlRows = @"
                 SELECT A.Id, U.UserName, A.Code FROM Accounts AS A 
