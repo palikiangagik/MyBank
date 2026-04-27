@@ -16,6 +16,9 @@ namespace MyBank.Infrastructure.Persistence.Queries
 
         public async Task<ProfileSummaryDTO> GetProfileSummaryAsync(string currentUserId, int page, int pageSize)
         {
+            if (page < 0 || pageSize <= 0)
+                throw new ArgumentException("Page must be >= 0 and PageSize must be > 0.");
+
             var conn = await _uow.GetConnection();
 
             decimal totalBalance = 0;

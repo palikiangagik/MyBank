@@ -36,6 +36,9 @@ namespace MyBank.Infrastructure.Persistence.Queries
 
         public async Task<SubList<AccountSummaryDTO>> GetUserAccountListAsync(string currentUserId, int page, int pageSize)
         {
+            if (page < 0 || pageSize <= 0)
+                throw new ArgumentException("Page must be >= 0 and PageSize must be > 0.");
+
             var conn = await _uow.GetConnection();
 
             const string sqlCount = "SELECT COUNT(*) FROM Accounts WHERE UserId=@CurrentUserId AND IsClosed=0";
@@ -64,6 +67,9 @@ namespace MyBank.Infrastructure.Persistence.Queries
         public async Task<SubList<DestinationAccountDTO>> GetDestinationAccountListAsync(string currentUserId,
             int page, int pageSize)
         {
+            if (page < 0 || pageSize <= 0)
+                throw new ArgumentException("Page must be >= 0 and PageSize must be > 0.");
+
             var conn = await _uow.GetConnection();
 
             const string sqlCount = "SELECT COUNT(*) FROM Accounts WHERE IsClosed=0";

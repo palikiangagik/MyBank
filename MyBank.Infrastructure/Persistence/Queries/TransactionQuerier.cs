@@ -19,6 +19,9 @@ namespace MyBank.Infrastructure.Persistence.Queries
         public async Task<SubList<TransactionHistoryItemDTO>> GetTransactionHistoryAsync(
            string currentUserId, int page, int pageSize)
         {
+            if (page < 0 || pageSize <= 0)
+                throw new ArgumentException("Page must be >= 0 and PageSize must be > 0.");
+
             var conn = await _uow.GetConnection();
 
             const string sqlCount = @"
