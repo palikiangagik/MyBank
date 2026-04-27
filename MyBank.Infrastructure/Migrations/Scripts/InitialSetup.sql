@@ -12,10 +12,11 @@ BEGIN
         UserId NVARCHAR(450) NOT NULL,
         Balance DECIMAL(18,2) DEFAULT 0,
         IsClosed BIT DEFAULT 0,
-        CONSTRAINT FK_Accounts_Users FOREIGN KEY (UserId) REFERENCES AspNetUsers(Id)
+        CONSTRAINT FK_Accounts_Users FOREIGN KEY (UserId) REFERENCES AspNetUsers(Id),
+
+        INDEX IX_Accounts_UserId (UserId)
     );
     
-    CREATE INDEX IX_Accounts_UserId ON Accounts(UserId);
 END
 
 
@@ -37,12 +38,12 @@ BEGIN
             REFERENCES Accounts(Id),
             
         CONSTRAINT FK_Transactions_Account FOREIGN KEY (AccountId) 
-            REFERENCES Accounts(Id)
-    );
+            REFERENCES Accounts(Id),
 
-    CREATE INDEX IX_Transactions_AccountId ON Transactions(AccountId);
-    CREATE INDEX IX_Transactions_SenderAccountId ON Transactions(SenderAccountId) WHERE SenderAccountId IS NOT NULL;
-    CREATE INDEX IX_Transactions_RecipientAccountId ON Transactions(RecipientAccountId) WHERE RecipientAccountId IS NOT NULL;
-    CREATE INDEX IX_Transactions_CreatedAt ON Transactions(CreatedAt DESC);
+        INDEX IX_Transactions_AccountId (AccountId DESC),
+        INDEX IX_Transactions_SenderAccountId (SenderAccountId) WHERE SenderAccountId IS NOT NULL,
+        INDEX IX_Transactions_RecipientAccountId (RecipientAccountId) WHERE RecipientAccountId IS NOT NULL,
+        INDEX IX_Transactions_CreatedAt (CreatedAt DESC)
+    );
 END
 
