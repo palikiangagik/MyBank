@@ -3,7 +3,7 @@ using System.Data.Common;
 
 namespace MyBank.Application.Interfaces
 {
-    public interface IUnitOfWork
+    public interface IDbSession
     {
         public Task BeginTransactionAsync();
         public Task RollbackAsync();

@@ -6,7 +6,7 @@ using MyBank.Domain.ValueObjects;
 
 namespace MyBank.Domain.Services
 {
-    // consistency is maintained at the app level by UoW
+    // consistency is maintained at the app level by IDbSession
 
     public class AccountService
     {

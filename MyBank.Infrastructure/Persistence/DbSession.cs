@@ -7,14 +7,14 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace MyBank.Infrastructure.Persistence
 {
-    public class UnitOfWork : IUnitOfWork, IDisposable, IAsyncDisposable
+    public class DbSession : IDbSession, IDisposable, IAsyncDisposable
     {
         private DbConnection? _connection;
         public DbTransaction? Transaction { get; private set; }
 
         private readonly string _connectionString;
 
-        public UnitOfWork(string connectionString) => _connectionString = connectionString;
+        public DbSession(string connectionString) => _connectionString = connectionString;
         
         private async Task EnsureConnectionOpenAsync()
         {

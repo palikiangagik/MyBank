@@ -7,11 +7,11 @@ namespace MyBank.Infrastructure.Persistence.Queries
 {
     public class ProfileQuerier : IProfileQuerier
     {
-        private readonly UnitOfWork _uow;
+        private readonly DbSession _db;
 
-        public ProfileQuerier(UnitOfWork unitOfWork)
+        public ProfileQuerier(DbSession db)
         {
-            _uow = unitOfWork;
+            _db = db;
         }
 
         public async Task<ProfileSummaryDTO> GetProfileSummaryAsync(string currentUserId, int page, int pageSize)
@@ -19,7 +19,7 @@ namespace MyBank.Infrastructure.Persistence.Queries
             if (page < 1 || pageSize <= 0)
                 throw new ArgumentException("Page must be >= 1 and PageSize must be > 0.");
 
-            var conn = await _uow.GetConnection();
+            var conn = await _db.GetConnection();
 
             decimal totalBalance = 0;
             List<ProfileSummaryAccountItemDTO> items = [];
@@ -28,7 +28,7 @@ namespace MyBank.Infrastructure.Persistence.Queries
             int totalCount = await conn.ExecuteScalarAsync<int>(sqlTotalCount, new
             {
                 UserId = currentUserId
-            }, _uow.Transaction);
+            }, _db.Transaction);
 
 
             if (totalCount > 0)
@@ -37,7 +37,7 @@ namespace MyBank.Infrastructure.Persistence.Queries
                 totalBalance = await conn.ExecuteScalarAsync<decimal>(sqlTotalBalance, new
                 {
                     UserId = currentUserId
-                }, _uow.Transaction);
+                }, _db.Transaction);
 
                 const string sqlAccounts = @"
                     SELECT Id, Code, Balance
@@ -50,7 +50,7 @@ namespace MyBank.Infrastructure.Persistence.Queries
                     UserId = currentUserId,
                     Offset = (page - 1) * pageSize,
                     Limit = pageSize
-                }, _uow.Transaction);
+                }, _db.Transaction);
 
                 items = rows.Select(row => new ProfileSummaryAccountItemDTO(
                     (int)row.Id, 

@@ -9,16 +9,16 @@ namespace MyBank.Infrastructure.Persistence.Queries
 {
     public class AccountQuerier : IAccountQuerier
     {
-        private readonly UnitOfWork _uow;
+        private readonly DbSession _db;
 
-        public AccountQuerier(UnitOfWork uow)
+        public AccountQuerier(DbSession db)
         {
-            _uow = uow;
+            _db = db;
         }
 
         public async Task<Result<AccountSummaryDTO>> GetAccountSummaryAsync(string currentUserId, int accountId)
         {
-            var conn = await _uow.GetConnection();
+            var conn = await _db.GetConnection();
 
             const string sql = @"SELECT Id, Code, Balance FROM Accounts 
                 WHERE UserId=@CurrentUserId AND Id=@AccoundId AND IsClosed=0";
@@ -26,7 +26,7 @@ namespace MyBank.Infrastructure.Persistence.Queries
             var row = await conn.QuerySingleOrDefaultAsync<dynamic>(sql, new {
                 CurrentUserId = currentUserId,
                 AccoundId = accountId
-            }, _uow.Transaction);
+            }, _db.Transaction);
 
             if (row == null)
                 return Failures.AccountNotFound;
@@ -39,12 +39,12 @@ namespace MyBank.Infrastructure.Persistence.Queries
             if (page < 1 || pageSize <= 0)
                 throw new ArgumentException("Page must be >= 1 and PageSize must be > 0.");
 
-            var conn = await _uow.GetConnection();
+            var conn = await _db.GetConnection();
 
             const string sqlCount = "SELECT COUNT(*) FROM Accounts WHERE UserId=@CurrentUserId AND IsClosed=0";
             int totalCount = await conn.ExecuteScalarAsync<int>(sqlCount, new {
                 CurrentUserId = currentUserId
-            }, _uow.Transaction);
+            }, _db.Transaction);
 
             const string sqlRows = @"
                 SELECT Id, Code, Balance FROM Accounts 
@@ -58,7 +58,7 @@ namespace MyBank.Infrastructure.Persistence.Queries
                 CurrentUserId = currentUserId,
                 Offset = (page - 1) * pageSize, 
                 Limit = pageSize 
-            }, _uow.Transaction);
+            }, _db.Transaction);
             var items = rows.Select(row => new AccountSummaryDTO(row.Id, row.Code, row.Balance)).ToList();
 
             return new SubList<AccountSummaryDTO>(items, totalCount);
@@ -70,10 +70,10 @@ namespace MyBank.Infrastructure.Persistence.Queries
             if (page < 1 || pageSize <= 0)
                 throw new ArgumentException("Page must be >= 1 and PageSize must be > 0.");
 
-            var conn = await _uow.GetConnection();
+            var conn = await _db.GetConnection();
 
             const string sqlCount = "SELECT COUNT(*) FROM Accounts WHERE UserId<>@CurrentUserId AND IsClosed=0";
-            int totalCount = await conn.ExecuteScalarAsync<int>(sqlCount, new { CurrentUserId = currentUserId }, _uow.Transaction);
+            int totalCount = await conn.ExecuteScalarAsync<int>(sqlCount, new { CurrentUserId = currentUserId }, _db.Transaction);
 
             const string sqlRows = @"
                 SELECT A.Id, U.UserName, A.Code FROM Accounts AS A 
@@ -85,7 +85,7 @@ namespace MyBank.Infrastructure.Persistence.Queries
             var rows = await conn.QueryAsync(sqlRows, new { 
                 CurrentUserId = currentUserId, 
                 Offset = (page - 1) * pageSize, 
-                Limit = pageSize }, _uow.Transaction
+                Limit = pageSize }, _db.Transaction
             );
             var items = rows.Select(row => new DestinationAccountDTO(row.Id, row.UserName, row.Code)).ToList();
 

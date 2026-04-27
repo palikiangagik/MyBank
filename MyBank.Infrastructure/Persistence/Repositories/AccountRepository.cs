@@ -9,16 +9,16 @@ namespace MyBank.Infrastructure.Persistence.Repositories
 {
     public class AccountRepository : IAccountRepository
     {
-        private readonly UnitOfWork _uow;
+        private readonly DbSession _db;
 
-        public AccountRepository(UnitOfWork uow)
+        public AccountRepository(DbSession db)
         {
-            _uow = uow;
+            _db = db;
         }
 
         public async Task AddAsync(Account account)
         {
-            var con = await _uow.GetConnection();
+            var con = await _db.GetConnection();
 
             const string sql = @"
                 INSERT INTO dbo.Accounts (Id, Code, UserId, Balance, IsClosed) 
@@ -31,12 +31,12 @@ namespace MyBank.Infrastructure.Persistence.Repositories
                 UserId = account.UserId.Value,
                 Balance = account.Balance.Value,
                 IsClosed = account.IsClosed
-            }, transaction: _uow.Transaction);
+            }, transaction: _db.Transaction);
         }
 
         public async Task<Result<Account>> GetAsync(StringId userId, IntId accountId, bool blockUntilUpdate)
         {
-            var con = await _uow.GetConnection();
+            var con = await _db.GetConnection();
 
 
             const string sqlNonBlocking = $"SELECT * FROM dbo.Accounts WHERE Id = @Id AND UserId = @UserId";
@@ -45,7 +45,7 @@ namespace MyBank.Infrastructure.Persistence.Repositories
 
             var row = await con.QuerySingleOrDefaultAsync<dynamic>(sql,
                 new { Id = accountId.Value, UserId = userId.Value }, 
-                transaction: _uow.Transaction);
+                transaction: _db.Transaction);
 
             if (row == null)
                 return Failures.AccountNotFound;
@@ -56,7 +56,7 @@ namespace MyBank.Infrastructure.Persistence.Repositories
 
         public async Task<Result<Account>> GetAsync(IntId accountId, bool blockUntilUpdate)
         {
-            var con = await _uow.GetConnection();
+            var con = await _db.GetConnection();
 
             const string sqlNonBlocking = "SELECT * FROM dbo.Accounts WHERE Id = @Id";
             const string sqlBlocking = "SELECT * FROM dbo.Accounts WITH (UPDLOCK, ROWLOCK) WHERE Id = @Id";
@@ -64,7 +64,7 @@ namespace MyBank.Infrastructure.Persistence.Repositories
 
             var row = await con.QuerySingleOrDefaultAsync<dynamic>(sql,
                 new { Id = accountId.Value },
-                transaction: _uow.Transaction);
+                transaction: _db.Transaction);
 
             if (row == null)
                 return Failures.AccountNotFound;
@@ -75,7 +75,7 @@ namespace MyBank.Infrastructure.Persistence.Repositories
 
         public async Task UpdateAsync(Account account)
         {
-            var con = await _uow.GetConnection();
+            var con = await _db.GetConnection();
 
             const string sql = @"
                 UPDATE dbo.Accounts 
@@ -92,7 +92,7 @@ namespace MyBank.Infrastructure.Persistence.Repositories
                 UserId = account.UserId.Value, 
                 Balance = account.Balance.Value,
                 IsClosed = account.IsClosed
-            }, transaction: _uow.Transaction);
+            }, transaction: _db.Transaction);
         }
     }
 }

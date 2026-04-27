@@ -6,16 +6,16 @@ namespace MyBank.Infrastructure.Persistence.Repositories
 {
     public class TransactionRepository : ITransactionRepository
     {
-        private readonly UnitOfWork _uow;
+        private readonly DbSession _db;
 
-        public TransactionRepository(UnitOfWork uow)
+        public TransactionRepository(DbSession db)
         {
-            _uow = uow;
+            _db = db;
         }
 
         public async Task AddAsync(Transaction transaction)
         {
-            var con = await _uow.GetConnection();
+            var con = await _db.GetConnection();
 
             const string sql = @"
                 INSERT INTO dbo.Transactions 
@@ -40,7 +40,7 @@ namespace MyBank.Infrastructure.Persistence.Repositories
                 }
             };
 
-            await con.ExecuteAsync(sql, parameters, transaction: _uow.Transaction);
+            await con.ExecuteAsync(sql, parameters, transaction: _db.Transaction);
         }
     }
 }

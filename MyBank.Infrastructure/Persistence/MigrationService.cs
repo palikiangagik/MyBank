@@ -8,12 +8,12 @@ namespace MyBank.Infrastructure.Persistence
     public class MigrationService
     {
         private readonly MyBankIdentityDbContext _identityContext;
-        private readonly UnitOfWork _unitOfWork;
+        private readonly DbSession _db;
 
-        public MigrationService(MyBankIdentityDbContext identityContext, UnitOfWork unitOfWork)
+        public MigrationService(MyBankIdentityDbContext identityContext, DbSession db)
         {
             _identityContext = identityContext;
-            _unitOfWork = unitOfWork;
+            _db = db;
         }
 
         public async Task ApplyMigrationsAsync()
@@ -21,7 +21,7 @@ namespace MyBank.Infrastructure.Persistence
             await _identityContext.Database.MigrateAsync();
 
             string setupSql = await GetSqlScript("InitialSetup.sql");
-            var conn = await _unitOfWork.GetConnection();
+            var conn = await _db.GetConnection();
             await conn.ExecuteAsync(setupSql);
         }
 

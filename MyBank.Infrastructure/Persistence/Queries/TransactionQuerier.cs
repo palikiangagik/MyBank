@@ -8,11 +8,11 @@ namespace MyBank.Infrastructure.Persistence.Queries
 {
     public class TransactionQuerier : ITransactionQuerier
     {
-        private readonly UnitOfWork _uow;
+        private readonly DbSession _db;
 
-        public TransactionQuerier(UnitOfWork uow)
+        public TransactionQuerier(DbSession db)
         {
-            _uow = uow;
+            _db = db;
         }
 
 
@@ -22,7 +22,7 @@ namespace MyBank.Infrastructure.Persistence.Queries
             if (page < 1 || pageSize <= 0)
                 throw new ArgumentException("Page must be >= 1 and PageSize must be > 0.");
 
-            var conn = await _uow.GetConnection();
+            var conn = await _db.GetConnection();
 
             const string sqlCount = @"
                     SELECT COUNT(*) FROM Transactions AS T
@@ -37,7 +37,7 @@ namespace MyBank.Infrastructure.Persistence.Queries
             int totalCount = await conn.ExecuteScalarAsync<int>(sqlCount, new 
             { 
                 CurrentUserId = currentUserId
-            }, _uow.Transaction);
+            }, _db.Transaction);
             
 
             const string sqlRows = @"
@@ -69,7 +69,7 @@ namespace MyBank.Infrastructure.Persistence.Queries
                 CurrentUserId = currentUserId,
                 Offset = (page - 1) * pageSize,
                 Limit = pageSize
-            }, _uow.Transaction);
+            }, _db.Transaction);
                         
 
             var items = rows.Select(row => new TransactionHistoryItemDTO

@@ -6,18 +6,18 @@ namespace MyBank.Infrastructure.Persistence
 {
     public class IdGenerator : IIdGenerator
     {
-        private readonly UnitOfWork _uow;
+        private readonly DbSession _db;
 
-        public IdGenerator(UnitOfWork uow)
+        public IdGenerator(DbSession db)
         {
-            _uow = uow;
+            _db = db;
         }
 
         public async Task<IntId> GetNextIdAsync()
         {
-            var con = await _uow.GetConnection();
+            var con = await _db.GetConnection();
             const string sql = "SELECT NEXT VALUE FOR dbo.IdSequence";
-            var nextId = await con.ExecuteScalarAsync<int>(sql, transaction: _uow.Transaction);
+            var nextId = await con.ExecuteScalarAsync<int>(sql, transaction: _db.Transaction);
             return nextId;
         }
     }
