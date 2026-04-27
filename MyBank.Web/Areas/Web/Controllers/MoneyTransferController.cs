@@ -36,7 +36,7 @@ namespace MyBank.Web.Areas.Web.Controllers
                 return await RefillAndReturn(viewModel, nameof(Index), result);
 
             TempData["Message"] = $"{result.Value.Amount} sent successfully from " +
-                $"{result.Value.SenderAccountCode} to {result.Value.RecipientAccountCode} ({result.Value.RecipientAccountCode}).";
+                $"{result.Value.SenderAccountCode} to {result.Value.RecipientAccountCode}.";
             return RedirectToAction(nameof(Index));            
         }
 
