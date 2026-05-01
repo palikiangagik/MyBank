@@ -32,4 +32,8 @@
     <ProjectReference Include="..\MyBank.Infrastructure\MyBank.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="..\.dockerignore" />
+  </ItemGroup>
+
 </Project>

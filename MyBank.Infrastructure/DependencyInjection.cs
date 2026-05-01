@@ -36,16 +36,7 @@ namespace MyBank.Infrastructure
         public static IdentityBuilder AddIdentityInfrastructure(this IServiceCollection services, string connectionString)
         {
             // identity storage
-            services.AddDbContext<MyBankIdentityDbContext>(options =>
-                options.UseSqlServer(
-                    connectionString,
-                    sqlOptions => sqlOptions.EnableRetryOnFailure(
-                        maxRetryCount: 10,
-                        maxRetryDelay: TimeSpan.FromSeconds(5),
-                        errorNumbersToAdd: null
-                    )
-                )
-            );
+            services.AddDbContext<MyBankIdentityDbContext>(options => options.UseSqlServer(connectionString));
 
             // identity services
             return services.AddIdentityCore<IdentityUser>(options =>
