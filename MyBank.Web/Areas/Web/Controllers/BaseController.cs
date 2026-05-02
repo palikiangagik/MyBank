@@ -1,8 +1,15 @@
 ﻿using CorePrimitives;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
+using Microsoft.Extensions.DependencyInjection;
+using MyBank.Infrastructure.Identity;
 using MyBank.Web.Areas.Web.ViewModels;
+using System;
+using System.Linq;
+using System.Security;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace MyBank.Web.Areas.Web.Controllers
 {
@@ -10,8 +17,19 @@ namespace MyBank.Web.Areas.Web.Controllers
     [Area("Web")]
     public abstract class BaseController : Controller
     {
-        protected string UserName => User.FindFirstValue(ClaimTypes.Name);
-        protected string UserNameIdentifier => User.FindFirstValue(ClaimTypes.NameIdentifier);
+        public int ClientId
+        {
+            get
+            {
+                var value = User.FindFirst("ClientId")?.Value;
+
+                int clientId = 0;
+                if (!int.TryParse(value, out clientId))
+                    throw new SecurityException("Client not found or can't be parsed.");
+
+                return clientId;
+            }
+        }
 
         /// <summary>
         /// Return the appropriate failure response based on the error type. 
@@ -25,19 +43,22 @@ namespace MyBank.Web.Areas.Web.Controllers
         /// <returns>An IActionResult representing the outcome of the operation.</returns>
         protected IActionResult Failure(Result result, BaseViewModel viewModel = null, string action = null)
         {
-            if (result.Failure is null)
+            if (result.Errors.Count == 0)
                 return StatusCode(500, "An unknown error occurred.");
 
-            if (viewModel is not null)
+            if (viewModel is null)
             {
-                ModelState.AddModelError(string.Empty, result.Failure.Description);
-                if (string.IsNullOrEmpty(action))
-                    return View(viewModel);
-                else
-                    return View(action, viewModel);
+                string error = string.Join("\n", result.Errors.Select(e => e.Description));
+                return BadRequest(error);
             }
 
-            return BadRequest(result.Failure.Description);
+            foreach (var error in result.Errors)
+                ModelState.AddModelError(error.Id, error.Description);
+
+            if (string.IsNullOrEmpty(action))
+                return View(viewModel);
+            
+            return View(action, viewModel);
         }
     }
 }

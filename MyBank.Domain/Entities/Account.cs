@@ -10,17 +10,16 @@ namespace MyBank.Domain.Entities
     public class Account
     {
         public IntId Id { get; private set; }
-        public StringId Code { get; private set; }
-        public StringId UserId { get; }
+        public string Code { get; private set; }
+        public IntId ClientId { get; }
         public Money Balance { get; private set; }
         public bool IsClosed { get; private set; }
 
-        // TODO: move params to record?
-        public Account(IntId id, StringId code, StringId userId, Money balance, bool isClosed)
+        public Account(IntId id, string code, IntId clientId, Money balance, bool isClosed)
         {
             Id = id;
             Code = code;
-            UserId = userId;
+            ClientId = clientId;
             Balance = balance;
             IsClosed = isClosed;
         }      
@@ -30,7 +29,7 @@ namespace MyBank.Domain.Entities
             if (amount <= 0)
                 throw new ArgumentOutOfRangeException(nameof(amount), "Deposit amount should be positive.");
             if (IsClosed)
-                return Failures.OperationOnClosedAccount;
+                return Errors.OperationOnClosedAccount;
 
             Balance += amount;
 
@@ -42,27 +41,27 @@ namespace MyBank.Domain.Entities
             if (amount <= 0)
                 throw new ArgumentOutOfRangeException(nameof(amount), "Withdrawal amount should be positive.");
             if (IsClosed)
-                return Failures.OperationOnClosedAccount;
+                return Errors.OperationOnClosedAccount;
             if (amount > Balance)
-                return Failures.InsufficientFunds;
+                return Errors.InsufficientFunds;
 
             Balance -= amount;
 
             return Result.Success();
         }
 
-        internal static Account Open(IntId id, StringId userId)
+        internal static Account Open(IntId id, IntId clientId)
         {
             string code = ((int)id).ToString("D6");
-            return new Account(id, code, userId, 0m, false);
+            return new Account(id, code, clientId, 0m, false);
         }
 
         public Result Close()
         {
             if (IsClosed)
-                return Failures.AccountAlreadyClosed;
+                return Errors.AccountAlreadyClosed;
             if (Balance > 0)
-                return Failures.CannotCloseAccountWithBalance;
+                return Errors.CannotCloseAccountWithBalance;
 
             IsClosed = true;
 

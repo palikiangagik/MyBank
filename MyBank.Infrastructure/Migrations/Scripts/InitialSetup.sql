@@ -3,18 +3,27 @@ BEGIN
     CREATE SEQUENCE dbo.IdSequence START WITH 1 INCREMENT BY 1;
 END
 
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Clients')
+BEGIN
+    CREATE TABLE Clients (
+        Id INT PRIMARY KEY,
+        FirstName NVARCHAR(100) NOT NULL,
+        LastName NVARCHAR(100) NOT NULL
+    );
+END
+
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Accounts')
 BEGIN
     CREATE TABLE Accounts (
         Id INT PRIMARY KEY,
         Code NVARCHAR(100) NOT NULL, 
-        UserId NVARCHAR(450) NOT NULL REFERENCES AspNetUsers(Id),
-        Balance DECIMAL(18,2) DEFAULT 0,
-        IsClosed BIT DEFAULT 0
+        ClientId INT NOT NULL REFERENCES Clients(Id),
+        Balance DECIMAL(18,2) NOT NULL DEFAULT 0,
+        IsClosed BIT NOT NULL DEFAULT 0
     );
     
-    CREATE INDEX IX_Accounts_UserId 
-    ON Accounts(UserId);
+    CREATE INDEX IX_Accounts_ClientId 
+    ON Accounts(ClientId);
 END
 
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Transactions')
@@ -43,4 +52,15 @@ BEGIN
     ON Transactions (RecipientAccountId) 
     WHERE RecipientAccountId IS NOT NULL;
 END
+
+-- This table links clients to their user identities in the ASP.NET Identity system.
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'ClientIdentity')
+BEGIN
+    CREATE TABLE ClientIdentity (
+        ClientId INT NOT NULL UNIQUE REFERENCES Clients(Id),
+        UserId NVARCHAR(450) NOT NULL UNIQUE REFERENCES AspNetUsers(Id)
+    );
+END
+
+
 

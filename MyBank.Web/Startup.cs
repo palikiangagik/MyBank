@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MyBank.Application;
 using MyBank.Infrastructure;
-using MyBank.Web.Middlewares;
+using MyBank.Web.Infrastructure;
 
 namespace MyBank.Web
 {
@@ -24,35 +24,25 @@ namespace MyBank.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            string connectionString = Configuration.GetConnectionString("MyBankDBConnection");
-
+            services.AddExceptionHandler<MyBankExceptionHandler>();
+            
             services.AddControllersWithViews(options => { 
                 options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
             });
 
             services.AddRazorPages();
 
+            services.AddAuthentication(IdentityConstants.ApplicationScheme).AddIdentityCookies();
+            
+            
             // App and infra
             services.AddApplication();
-            services.AddInfrastructure(connectionString);
-
-            // Identity
-            services.AddAuthentication(o =>
-            {
-                o.DefaultScheme = IdentityConstants.ApplicationScheme;
-                o.DefaultSignInScheme = IdentityConstants.ExternalScheme;
-            }).AddIdentityCookies(o => { });
-
-            services.AddIdentityInfrastructure(connectionString)
-                .AddDefaultUI()
-                .AddDefaultTokenProviders();
+            services.AddInfrastructure(Configuration.GetConnectionString("MyBankDBConnection"));
+            services.AddIdentityInfrastructure().AddDefaultUI();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            // To catch unhandled exceptions globally and log them
-            app.UseMiddleware<ExceptionLoggingMiddleware>();
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

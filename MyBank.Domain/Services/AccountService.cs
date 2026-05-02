@@ -17,11 +17,11 @@ namespace MyBank.Domain.Services
             _idGenerator = idGenerator;
         }
 
-        public async Task<Result<(Account, DepositTransaction?)>> OpenAccountAsync(string userId, Money balance)
+        public async Task<Result<(Account, DepositTransaction?)>> OpenAccountAsync(IntId clientId, Money balance)
         {
             IntId accountId = await _idGenerator.GetNextIdAsync();
 
-            Account account = Account.Open(accountId, userId);
+            Account account = Account.Open(accountId, clientId);
             DepositTransaction? transaction = null;
 
             if (balance > 0)
@@ -30,8 +30,8 @@ namespace MyBank.Domain.Services
 
                 var transactionResult = account.Deposit(balance)
                     .Then(() => DepositTransaction.Create(transactionId, balance, account.Id));
-                if (transactionResult.IsFailure)
-                    return transactionResult.Failure!;
+                if (transactionResult.Failed)
+                    return transactionResult.Errors;
                 transaction = transactionResult.Value;
             }
 

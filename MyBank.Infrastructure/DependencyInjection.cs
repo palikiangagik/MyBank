@@ -7,6 +7,7 @@ using MyBank.Domain.Interfaces;
 using MyBank.Infrastructure.Persistence;
 using MyBank.Infrastructure.Persistence.Queries;
 using MyBank.Infrastructure.Persistence.Repositories;
+using MyBank.Infrastructure.Identity;
 
 namespace MyBank.Infrastructure
 {
@@ -14,38 +15,43 @@ namespace MyBank.Infrastructure
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, string connectionString)
         {
+            services.AddMemoryCache();
+
             // from domain layer
             services.AddScoped<IIdGenerator, IdGenerator>();
 
             // from app layer                        
+            services.AddScoped<IClientRepository, ClientRepository>();
             services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<ITransactionRepository, TransactionRepository>();
+            
             services.AddScoped<IAccountQuerier, AccountQuerier>();
-            services.AddScoped<IProfileQuerier, ProfileQuerier>();
+            services.AddScoped<IClientQuerier, ClientQuerier>();
             services.AddScoped<ITransactionQuerier, TransactionQuerier>();
 
             // for DB
-            services.AddScoped<DbSession>(_ => new DbSession(connectionString));
-            services.AddScoped<IDbSession>(sp => sp.GetRequiredService<DbSession>());
-            services.AddScoped<MigrationService>();
+            services.AddScoped<IDbSession, DbSession>();
+            services.AddDbContext<MyBankDbContext>(options => options.UseSqlServer(connectionString));
             services.AddScoped<DevelopmentDbSeeder>();
 
             return services;
         }
 
-        public static IdentityBuilder AddIdentityInfrastructure(this IServiceCollection services, string connectionString)
+        public static IdentityBuilder AddIdentityInfrastructure(this IServiceCollection services)
         {
-            // identity storage
-            services.AddDbContext<MyBankIdentityDbContext>(options => options.UseSqlServer(connectionString));
-
             // identity services
+            services.AddScoped<ClientIdentityService>();
+
             return services.AddIdentityCore<IdentityUser>(options =>
             {
                 options.Stores.MaxLengthForKeys = 128;
                 options.SignIn.RequireConfirmedAccount = false;
                 options.SignIn.RequireConfirmedPhoneNumber = false;
                 options.SignIn.RequireConfirmedEmail = false;
-            }).AddEntityFrameworkStores<MyBankIdentityDbContext>();
+            })
+            .AddDefaultTokenProviders()
+            .AddEntityFrameworkStores<MyBankDbContext>()
+            .AddClaimsPrincipalFactory<MyBankPrincipalFactory>();
         }
 
     }

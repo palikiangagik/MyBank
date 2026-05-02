@@ -25,5 +25,9 @@
     <ProjectReference Include="..\MyBank.Application\MyBank.Application.csproj" />
     <ProjectReference Include="..\MyBank.Domain\MyBank.Domain.csproj" />
   </ItemGroup>
+  
+	<ItemGroup>
+	  <FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
 
 </Project>

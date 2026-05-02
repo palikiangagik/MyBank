@@ -2,7 +2,7 @@
 
 namespace MyBank.Application.Helpers
 {
-    public class TransactionScope : IDisposable, IAsyncDisposable
+    public class TransactionScope : IAsyncDisposable
     {
         private readonly IDbSession _db;
         private bool _commited;
@@ -25,17 +25,10 @@ namespace MyBank.Application.Helpers
             _commited = true;
         }
 
-        public void Dispose()
-        {
-            if (!_commited)
-                _db.Rollback();
-        }
-
         public async ValueTask DisposeAsync()
         {
             if (!_commited)
                 await _db.RollbackAsync();
         }
-
     }
 }

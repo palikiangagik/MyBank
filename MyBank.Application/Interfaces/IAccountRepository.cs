@@ -7,8 +7,8 @@ namespace MyBank.Application.Interfaces
     public interface IAccountRepository
     {
         public Task AddAsync(Account account);
-        public Task<Result<Account>> GetAsync(StringId userId, IntId accountId, bool blockUntilUpdat);
-        public Task<Result<Account>> GetAsync(IntId accountId, bool blockUntilUpdat);
+        public Task<Result<Account>> GetAsync(IntId clientId, IntId accountId, bool blockUntilUpdate);
+        public Task<Result<Account>> GetAsync(IntId clientId, bool blockUntilUpdate);
         public Task UpdateAsync(Account account);
     }
 }

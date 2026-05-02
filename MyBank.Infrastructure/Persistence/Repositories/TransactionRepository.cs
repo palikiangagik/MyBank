@@ -1,24 +1,24 @@
 ﻿using Dapper;
-using MyBank.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 using MyBank.Application.Interfaces;
+using MyBank.Domain.Entities;
+using System.Data.Common;
 
 namespace MyBank.Infrastructure.Persistence.Repositories
 {
     public class TransactionRepository : ITransactionRepository
     {
-        private readonly DbSession _db;
+        private readonly MyBankDbContext _db;
 
-        public TransactionRepository(DbSession db)
+        public TransactionRepository(MyBankDbContext db)
         {
             _db = db;
         }
 
         public async Task AddAsync(Transaction transaction)
         {
-            var con = await _db.GetConnection();
-
             const string sql = @"
-                INSERT INTO dbo.Transactions 
+                INSERT INTO Transactions 
                 (Id, CreatedAt, [Type], Amount, SenderAccountId, RecipientAccountId, AccountId) 
                 VALUES 
                 (@Id, @CreatedAt, @Type, @Amount, @SenderAccountId, @RecipientAccountId, @AccountId)";
@@ -36,11 +36,11 @@ namespace MyBank.Infrastructure.Persistence.Repositories
                     WithdrawalTransaction w => w.AccountId.Value,
                     DepositTransaction d => d.AccountId.Value,
                     TransferTransaction tr => (int?)null,
-                    _ => throw new InvalidOperationException("Unknown transaction type encountered in DB.")
+                    _ => throw new InvalidOperationException("Attempted to add an unknown transaction type to the database.")
                 }
             };
 
-            await con.ExecuteAsync(sql, parameters, transaction: _db.Transaction);
+            await _db.Connection.ExecuteAsync(sql, parameters, transaction: _db.Transaction);
         }
     }
 }

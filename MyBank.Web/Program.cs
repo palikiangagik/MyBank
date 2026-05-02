@@ -18,13 +18,12 @@ namespace MyBank.Web
             {
                 var services = scope.ServiceProvider;
                 var env = services.GetRequiredService<IHostEnvironment>();
-                var migrationService = services.GetRequiredService<MigrationService>();
-                await migrationService.ApplyMigrationsAsync();
+                var db = services.GetRequiredService<MyBankDbContext>();
+                var seeder = services.GetRequiredService<DevelopmentDbSeeder>();
+
+                await db.MigrateAsync();
                 if (env.IsDevelopment())
-                {
-                    var seeder = services.GetRequiredService<DevelopmentDbSeeder>();
                     await seeder.Run();
-                }
             }
 
             await host.RunAsync();

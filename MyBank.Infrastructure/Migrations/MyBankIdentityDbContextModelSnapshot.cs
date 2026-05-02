@@ -10,7 +10,7 @@ using MyBank.Infrastructure.Persistence;
 
 namespace MyBank.Infrastructure.Migrations
 {
-    [DbContext(typeof(MyBankIdentityDbContext))]
+    [DbContext(typeof(Persistence.MyBankDbContext))]
     partial class MyBankIdentityDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

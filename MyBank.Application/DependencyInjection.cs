@@ -10,10 +10,11 @@ namespace MyBank.Application
         {
             // from domain layer
             services.AddScoped<AccountService>();
+            services.AddScoped<ClientService>();
 
             //  from app layer
             services.AddScoped<AccountsUseCases>(); 
-            services.AddScoped<ProfileUseCases>();
+            services.AddScoped<ClientUseCases>();
             services.AddScoped<TransactionsUseCases>();
             return services;
         }

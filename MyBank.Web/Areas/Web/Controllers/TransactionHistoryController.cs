@@ -21,8 +21,7 @@ namespace MyBank.Web.Areas.Web.Controllers
         {
             int pageSize = 10;
 
-            var result = await _transactionsUseCases.GetTransactionHistoryAsync(UserNameIdentifier,
-                page, pageSize);
+            var result = await _transactionsUseCases.GetTransactionHistoryAsync(ClientId, new(page, pageSize));
 
             var transactions = result.Items
                 .Select(trans => new TransactionHistoryViewItem
@@ -31,10 +30,10 @@ namespace MyBank.Web.Areas.Web.Controllers
                     CreatedAt = trans.CreatedAt,
                     Amount = trans.Amount,
                     AccountCode = trans.AccountCode,
-                    SenderAccountCode = trans.SenderAccountCode,
-                    SenderName = trans.SenderUserName,
-                    RecipientAccountCode = trans.RecipientAccountCode,
-                    RecipientName = trans.RecipientUserName
+                    SenderAccountCode = trans.Sender?.AccountCode,
+                    SenderName = trans.Sender is null ? null : trans.Sender.FirstName + " " + trans.Sender.LastName,
+                    RecipientAccountCode = trans.Recipient?.AccountCode,
+                    RecipientName = trans.Recipient is null ? null : trans.Recipient.FirstName + " " + trans.Recipient.LastName
                 }).ToList();
 
             return View(new TransactionHistoryViewModel

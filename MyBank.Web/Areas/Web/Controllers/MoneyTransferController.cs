@@ -29,10 +29,10 @@ namespace MyBank.Web.Areas.Web.Controllers
             if (!ModelState.IsValid)
                 return await RefillAndReturn(viewModel, nameof(Index));
 
-            var result = await _accountsUseCases.TransferAsync(UserNameIdentifier, viewModel.FromAccount,
+            var result = await _accountsUseCases.TransferAsync(ClientId, viewModel.FromAccount,
                 viewModel.ToAccount, viewModel.Amount);
 
-            if (!result.IsSuccess)
+            if (result.Failed)
                 return await RefillAndReturn(viewModel, nameof(Index), result);
 
             TempData["Message"] = $"{result.Value.Amount} sent successfully from " +
@@ -44,8 +44,8 @@ namespace MyBank.Web.Areas.Web.Controllers
             string action = null,
             Result result = null)
         {
-            var accountsFrom = await _accountsUseCases.GetUserAccountListAsync(UserNameIdentifier, 1, int.MaxValue);
-            var accountsTo = await _accountsUseCases.GetDestinationAccountListAsync(UserNameIdentifier, 1, int.MaxValue);
+            var accountsFrom = await _accountsUseCases.GetClientAccountListAsync(ClientId, new(1, int.MaxValue));
+            var accountsTo = await _accountsUseCases.GetDestinationAccountListAsync(ClientId, new(1, int.MaxValue));
 
             viewModel.FromAccounts = accountsFrom.Items
             .Select(acc => new SelectListItem
@@ -58,10 +58,10 @@ namespace MyBank.Web.Areas.Web.Controllers
             .Select(acc => new SelectListItem
             {
                 Value = acc.Id.ToString(),
-                Text = $"{acc.Code} ({acc.UserName})" 
+                Text = $"{acc.Code} ({acc.Name.FirstName} {acc.Name.LastName})" 
             }).ToList();
 
-            if (null != result && !result.IsSuccess)
+            if (result is not null && result.Failed)
                 return Failure(result, viewModel, action);
             else if (!string.IsNullOrEmpty(action))
                 return View(action, viewModel);

@@ -1,10 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MyBank.Application.DTO
+﻿namespace MyBank.Application.DTO
 {
-    public record DestinationAccountDTO(int Id, string UserName, string Code);
+    public record DestinationAccountDTO
+    {
+        public record ClientName
+        {
+            public required string FirstName { get; init; }
+            public required string LastName { get; init; }
+        }
+
+        public required int Id { get; init; }
+        public required string Code { get; init; }
+        public required ClientName Name { get; init; }
+    }
 }

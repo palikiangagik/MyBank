@@ -1,34 +1,45 @@
 ﻿namespace CorePrimitives
 {
-    public record Failure(string Id, string Description);
+    public record Error(string Id, string Description);
 
     public record Result
     {
-        public bool IsSuccess => Failure is null;
-        public bool IsFailure => Failure is not null;
-        public Failure? Failure { get; }
-        protected Result(Failure? failureValue) => Failure = failureValue;
-        public static Result Success() => new(null);
-        public static Result Fail(Failure failureValue) => new(failureValue);
-        public static implicit operator Result(Failure failureValue) => new(failureValue);
+        public bool Succeeded => Errors.Count == 0;
+        public bool Failed => Errors.Count != 0;
+        public List<Error> Errors { get; }
+
+        protected Result(List<Error> errors) => Errors = errors;
+        protected Result(Error error) => Errors = [error];
+        protected Result() : this([]) { }
+
+        public static Result Fail(List<Error> errors) => new(errors);
+        public static Result Fail(Error error) => new(error);
+        public static Result Success() => new();
+
+        public static implicit operator Result(List<Error> errors) => new(errors);
+        public static implicit operator Result(Error error) => new(error);
     }
 
     public record Result<T> : Result
     {
         private readonly T? _value;
-        public T Value => IsSuccess ? _value! : throw new InvalidOperationException("No value for failed result.");
-        private Result(T value) : base(null) => _value = value;
-        private Result(Failure failureValue) : base(failureValue) { }
+        public T Value => Succeeded ? _value! : throw new InvalidOperationException("No value for failed result.");
+
+        private Result(List<Error> errors) : base(errors) { }
+        private Result(Error error) : base(error) { }
+        private Result(T value) : base() => _value = value;
+
+        public static implicit operator Result<T>(List<Error> errors) => new(errors);
+        public static implicit operator Result<T>(Error error) => new(error);
         public static implicit operator Result<T>(T value) => new(value);
-        public static implicit operator Result<T>(Failure failureValue) => new(failureValue);
     }
 
-    public static class  ResultExtenstions
+    public static class  ResultExtensions
     {
         public static Result Then(this Result result, Func<Result> next) => 
-            result.IsFailure ? result : next();
+            result.Failed ? result : next();
 
         public static Result<T> Then<T>(this Result result, Func<Result<T>> next) => 
-            result.IsFailure ? result.Failure! : next();
+            result.Failed ? result.Errors : next();
     }        
 }

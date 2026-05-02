@@ -29,13 +29,12 @@ namespace MyBank.Web.Areas.Web.Controllers
             if (!ModelState.IsValid)
                 return await RefillAndReturn(viewModel, nameof(Index));
 
-            var result = await _accountsUseCases.DepositAsync(UserNameIdentifier,
-                viewModel.Account, viewModel.Amount);
+            var result = await _accountsUseCases.DepositAsync(ClientId, viewModel.Account, viewModel.Amount);
 
-            if (!result.IsSuccess)
+            if (result.Failed)
                 return await RefillAndReturn(viewModel, nameof(Index), result);
 
-            TempData["Message"] = $"Deposited {result.Value.Amount} to account {result.Value.Code} successfully.";
+            TempData["Message"] = $"Deposited {result.Value.Amount} to account {result.Value.AccountCode} successfully.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -46,13 +45,13 @@ namespace MyBank.Web.Areas.Web.Controllers
             if (!ModelState.IsValid)
                 return await RefillAndReturn(viewModel, nameof(Index));
 
-            var result = await _accountsUseCases.WithdrawAsync(UserNameIdentifier,
+            var result = await _accountsUseCases.WithdrawAsync(ClientId,
                 viewModel.Account, viewModel.Amount);
 
-            if (!result.IsSuccess)
+            if (result.Failed)
                 return await RefillAndReturn(viewModel, nameof(Index), result);
 
-            TempData["Message"] = $"Withdrew {result.Value.Amount} from account {result.Value.Code} successfully.";
+            TempData["Message"] = $"Withdrew {result.Value.Amount} from account {result.Value.AccountCode} successfully.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -62,11 +61,7 @@ namespace MyBank.Web.Areas.Web.Controllers
             Result result = null
         )
         {
-            var accounts = await _accountsUseCases.GetUserAccountListAsync(
-               UserNameIdentifier,
-               1,
-               int.MaxValue 
-           );
+            var accounts = await _accountsUseCases.GetClientAccountListAsync(ClientId, new (1, int.MaxValue));
 
             viewModel.Accounts = accounts.Items.Select(acc => new SelectListItem
             {
@@ -74,7 +69,7 @@ namespace MyBank.Web.Areas.Web.Controllers
                 Text = $"{acc.Code} (Balance: {acc.Balance})"
             }).ToList();
 
-            if (null != result && !result.IsSuccess)
+            if (result is not null && result.Failed)
                 return Failure(result, viewModel, action);
             else if (!string.IsNullOrEmpty(action))
                 return View(action, viewModel);

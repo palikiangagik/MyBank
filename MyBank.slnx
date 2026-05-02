@@ -3,8 +3,9 @@
     <File Path="README.md" />
   </Folder>
   <Project Path="CorePrimitives/CorePrimitives.csproj" Id="095b543f-d14a-46f2-bb20-43476a407cec" />
-  <Project Path="MyBank.Application/MyBank.Application.csproj" Id="6f6904ee-c81c-4a94-af5a-9e2c72fe383d" />
   <Project Path="MyBank.Domain/MyBank.Domain.csproj" Id="1e4c6f16-2361-4d6a-b8c9-33f23e86f586" />
+  <Project Path="MyBank.Application/MyBank.Application.csproj" Id="6f6904ee-c81c-4a94-af5a-9e2c72fe383d" />
   <Project Path="MyBank.Infrastructure/MyBank.Infrastructure.csproj" Id="b3a27935-dacd-4f53-9bdb-733ce6da4436" />
+  <Project Path="MyBank.Api/MyBank.Api.csproj" Id="4a98be19-e451-4fd2-9a44-a938f79817a3" />
   <Project Path="MyBank.Web/MyBank.Web.csproj" />
 </Solution>

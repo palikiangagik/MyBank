@@ -1,28 +1,33 @@
 ﻿using Dapper;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using MyBank.Application.Interfaces;
+using Microsoft.EntityFrameworkCore.Storage;
+using System.Data.Common;
 using System.Reflection;
 
 namespace MyBank.Infrastructure.Persistence
 {
-    public class MigrationService
+    public class MyBankDbContext : IdentityDbContext<IdentityUser>
     {
-        private readonly MyBankIdentityDbContext _identityContext;
-        private readonly DbSession _db;
+        public DbConnection Connection => Database.GetDbConnection();
+        public DbTransaction? Transaction => Database.CurrentTransaction?.GetDbTransaction();
 
-        public MigrationService(MyBankIdentityDbContext identityContext, DbSession db)
+        public MyBankDbContext(DbContextOptions<MyBankDbContext> options)
+            : base(options)
         {
-            _identityContext = identityContext;
-            _db = db;
         }
 
-        public async Task ApplyMigrationsAsync()
+        protected override void OnModelCreating(ModelBuilder builder)
         {
-            await _identityContext.Database.MigrateAsync();
+            base.OnModelCreating(builder);
+        }
 
+        public async Task MigrateAsync()
+        {
+            await Database.MigrateAsync();
             string setupSql = await GetSqlScript("InitialSetup.sql");
-            var conn = await _db.GetConnection();
-            await conn.ExecuteAsync(setupSql);
+            await Connection.ExecuteAsync(setupSql);
         }
 
         private async Task<string> GetSqlScript(string fileName)

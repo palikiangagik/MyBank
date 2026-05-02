@@ -1,93 +1,101 @@
 ﻿using CorePrimitives;
 using Dapper;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using MyBank.Application.DTO;
 using MyBank.Application.Interfaces;
 using MyBank.Domain.Common;
+using System.Data.Common;
 using System.Security;
 
 namespace MyBank.Infrastructure.Persistence.Queries
 {
     public class AccountQuerier : IAccountQuerier
     {
-        private readonly DbSession _db;
+        private readonly MyBankDbContext _db;
 
-        public AccountQuerier(DbSession db)
+        public AccountQuerier(MyBankDbContext db)
         {
             _db = db;
         }
 
-        public async Task<Result<AccountSummaryDTO>> GetAccountSummaryAsync(string currentUserId, int accountId)
+        public async Task<Result<AccountSummaryDTO>> GetAccountSummaryAsync(int clientId, int accountId)
         {
-            var conn = await _db.GetConnection();
-
             const string sql = @"SELECT Id, Code, Balance FROM Accounts 
-                WHERE UserId=@CurrentUserId AND Id=@AccoundId AND IsClosed=0";
+                WHERE ClientId=@ClientId AND Id=@AccountId AND IsClosed=0";
 
-            var row = await conn.QuerySingleOrDefaultAsync<dynamic>(sql, new {
-                CurrentUserId = currentUserId,
-                AccoundId = accountId
-            }, _db.Transaction);
+            var row = await _db.Connection.QuerySingleOrDefaultAsync<dynamic>(sql, new {
+                ClientId = clientId,
+                AccountId = accountId
+            }, transaction: _db.Transaction);
 
             if (row == null)
-                return Failures.AccountNotFound;
+                return Errors.AccountNotFound;
 
-            return new AccountSummaryDTO(row.Id, row.Code, row.Balance);
+            return new AccountSummaryDTO{
+                Id = row.Id, 
+                Code = row.Code,
+                Balance = row.Balance
+            };
         }
 
-        public async Task<SubList<AccountSummaryDTO>> GetUserAccountListAsync(string currentUserId, int page, int pageSize)
+        public async Task<SubList<AccountSummaryDTO>> GetClientAccountListAsync(int clientId, PagingParametersDTO pageParameters)
         {
-            if (page < 1 || pageSize <= 0)
-                throw new ArgumentException("Page must be >= 1 and PageSize must be > 0.");
-
-            var conn = await _db.GetConnection();
-
-            const string sqlCount = "SELECT COUNT(*) FROM Accounts WHERE UserId=@CurrentUserId AND IsClosed=0";
-            int totalCount = await conn.ExecuteScalarAsync<int>(sqlCount, new {
-                CurrentUserId = currentUserId
-            }, _db.Transaction);
+            const string sqlCount = "SELECT COUNT(*) FROM Accounts WHERE ClientId=@ClientId AND IsClosed=0";
+            int totalCount = await _db.Connection.ExecuteScalarAsync<int>(sqlCount, new {
+                ClientId = clientId
+            }, transaction: _db.Transaction);
 
             const string sqlRows = @"
                 SELECT Id, Code, Balance FROM Accounts 
-                WHERE UserId=@CurrentUserId AND IsClosed=0
+                WHERE ClientId=@ClientId AND IsClosed=0
                 ORDER BY Id
                 OFFSET @Offset ROWS
                 FETCH NEXT @Limit ROWS ONLY
             ";
 
-            var rows = await conn.QueryAsync(sqlRows, new {
-                CurrentUserId = currentUserId,
-                Offset = (page - 1) * pageSize, 
-                Limit = pageSize 
-            }, _db.Transaction);
-            var items = rows.Select(row => new AccountSummaryDTO(row.Id, row.Code, row.Balance)).ToList();
+            var rows = await _db.Connection.QueryAsync(sqlRows, new {
+                ClientId = clientId,
+                Offset = (pageParameters.Page - 1) * pageParameters.PageSize, 
+                Limit = pageParameters.PageSize
+            }, transaction: _db.Transaction);
+
+            var items = rows.Select(row => new AccountSummaryDTO{
+                Id = row.Id,
+                Code = row.Code,
+                Balance = row.Balance
+            }).ToList(); 
 
             return new SubList<AccountSummaryDTO>(items, totalCount);
         }
 
-        public async Task<SubList<DestinationAccountDTO>> GetDestinationAccountListAsync(string currentUserId,
-            int page, int pageSize)
+        public async Task<SubList<DestinationAccountDTO>> GetDestinationAccountListAsync(int clientId, PagingParametersDTO pageParameters)
         {
-            if (page < 1 || pageSize <= 0)
-                throw new ArgumentException("Page must be >= 1 and PageSize must be > 0.");
-
-            var conn = await _db.GetConnection();
-
-            const string sqlCount = "SELECT COUNT(*) FROM Accounts WHERE UserId<>@CurrentUserId AND IsClosed=0";
-            int totalCount = await conn.ExecuteScalarAsync<int>(sqlCount, new { CurrentUserId = currentUserId }, _db.Transaction);
+            const string sqlCount = "SELECT COUNT(*) FROM Accounts WHERE ClientId<>@ClientId AND IsClosed=0";
+            int totalCount = await _db.Connection.ExecuteScalarAsync<int>(sqlCount, new { ClientId = clientId }, 
+                transaction: _db.Transaction);
 
             const string sqlRows = @"
-                SELECT A.Id, U.UserName, A.Code FROM Accounts AS A 
-                LEFT JOIN AspNetUsers AS U ON A.UserId=U.Id 
-                WHERE A.UserId<>@CurrentUserId AND A.IsClosed=0
+                SELECT A.Id, C.FirstName, C.LastName, A.Code FROM Accounts AS A 
+                LEFT JOIN Clients AS C ON A.ClientId=C.Id 
+                WHERE A.ClientId<>@ClientId AND A.IsClosed=0
                 ORDER BY A.Id
                 OFFSET @Offset ROWS
                 FETCH NEXT @Limit ROWS ONLY";
-            var rows = await conn.QueryAsync(sqlRows, new { 
-                CurrentUserId = currentUserId, 
-                Offset = (page - 1) * pageSize, 
-                Limit = pageSize }, _db.Transaction
-            );
-            var items = rows.Select(row => new DestinationAccountDTO(row.Id, row.UserName, row.Code)).ToList();
+
+            var rows = await _db.Connection.QueryAsync(sqlRows, new { 
+                ClientId = clientId,
+                Offset = (pageParameters.Page - 1) * pageParameters.PageSize,
+                Limit = pageParameters.PageSize,
+            }, transaction: _db.Transaction);
+
+            var items = rows.Select(row => new DestinationAccountDTO {
+                Id = row.Id,
+                Code = row.Code,
+                Name = new DestinationAccountDTO.ClientName { 
+                    FirstName = row.FirstName, LastName = row.LastName 
+                }
+            }).ToList();
 
             return new SubList<DestinationAccountDTO>(items, totalCount);
         }

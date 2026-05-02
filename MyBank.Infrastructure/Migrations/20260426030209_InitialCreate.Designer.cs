@@ -11,7 +11,7 @@ using MyBank.Infrastructure.Persistence;
 
 namespace MyBank.Infrastructure.Migrations
 {
-    [DbContext(typeof(MyBankIdentityDbContext))]
+    [DbContext(typeof(Persistence.MyBankDbContext))]
     [Migration("20260426030209_InitialCreate")]
     partial class InitialCreate
     {

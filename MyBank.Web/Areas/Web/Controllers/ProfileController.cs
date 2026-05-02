@@ -9,22 +9,25 @@ namespace MyBank.Web.Areas.Web.Controllers
 {
     public class ProfileController : BaseController
     {
-        private readonly ProfileUseCases _profileUseCases;
+        private readonly ClientUseCases _clientUseCases;
         private readonly AccountsUseCases _accountsUseCases;
 
-        public ProfileController(ProfileUseCases profileUseCases, AccountsUseCases accountsUseCases)
+        public ProfileController(ClientUseCases clientUseCases, AccountsUseCases accountsUseCases)
         {
-            _profileUseCases = profileUseCases;
+            _clientUseCases = clientUseCases;
             _accountsUseCases = accountsUseCases;
         }
 
         public async Task<IActionResult> Index()
         {
-            var summary = await _profileUseCases.GetProfileSummaryAsync(UserNameIdentifier, 1, int.MaxValue);
+            var summaryResult = await _clientUseCases.GetClientSummaryAsync(ClientId, new(1, int.MaxValue));
+            if (summaryResult.Failed)
+                return Failure(summaryResult);
+            ClientSummaryDTO summary = summaryResult.Value; 
 
             return View(new ProfileViewModel
             {
-                UserName = UserName,
+                UserName = summary.Name.FirstName + " " + summary.Name.LastName,
                 Balance = summary.TotalBalance,
                 Accounts = summary.AccountList.Items
                 .Select(acc => new ProfileAccountViewItem
@@ -48,9 +51,9 @@ namespace MyBank.Web.Areas.Web.Controllers
             if (!ModelState.IsValid)
                 return View(viewModel);
 
-            var result = await _accountsUseCases.OpenAccountAsync(UserNameIdentifier, viewModel.Amount);
+            var result = await _accountsUseCases.OpenAccountAsync(ClientId, viewModel.Amount);
 
-            if (!result.IsSuccess)
+            if (result.Failed)
                 return Failure(result, viewModel);
 
             return RedirectToAction(nameof(Index));
@@ -58,9 +61,9 @@ namespace MyBank.Web.Areas.Web.Controllers
 
         public async Task<IActionResult> CloseAccount(int id)
         {
-            var result = await _accountsUseCases.GetAccountSummaryAsync(UserNameIdentifier, id);
+            var result = await _accountsUseCases.GetAccountSummaryAsync(ClientId, id);
 
-            if (!result.IsSuccess)
+            if (result.Failed)
                 return Failure(result);
             AccountSummaryDTO dto = result.Value;
 
@@ -79,9 +82,9 @@ namespace MyBank.Web.Areas.Web.Controllers
             if (!ModelState.IsValid)
                 return View(viewModel);
 
-            var result = await _accountsUseCases.CloseAccountAsync(UserNameIdentifier, viewModel.Id);
+            var result = await _accountsUseCases.CloseAccountAsync(ClientId, viewModel.Id);
 
-            if (!result.IsSuccess)
+            if (result.Failed)
                 return Failure(result, viewModel);
 
             return RedirectToAction(nameof(Index));

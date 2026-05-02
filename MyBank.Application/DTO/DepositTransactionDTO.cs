@@ -1,4 +1,9 @@
 ﻿namespace MyBank.Application.DTO
 {
-    public record DepositTransactionDTO(DateTime CreatedAt, decimal Amount, string Code);
+    public record DepositTransactionDTO
+    {
+        public required DateTime CreatedAt { get; init; }
+        public required decimal Amount { get; init; }
+        public required string AccountCode { get; init; }
+    }        
 }
