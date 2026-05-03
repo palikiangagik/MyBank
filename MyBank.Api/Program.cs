@@ -1,39 +1,24 @@
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
 using MyBank.Application;
 using MyBank.Infrastructure;
+using MyBank.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
 string connectionString = builder.Configuration.GetConnectionString("MyBankDBConnection")
-    ?? throw new InvalidOperationException("Connection string 'MyBankDBConnection' is missing. Check the appsettings.json file.");
-
-// Add services to the container.
+    ?? throw new InvalidOperationException("Connection string 'MyBankDBConnection' is missing. Check the config.");
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// App and infra -----
-builder.Services.AddApplication();
-builder.Services.AddInfrastructure(connectionString);
+builder.Services.AddMyBankApplication();
+builder.Services.AddMyBankInfrastructure(connectionString);
+builder.Services.AddMyBankIdentity();
 
-// Identity
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme,
-        options => builder.Configuration.Bind("JwtSettings", options))
-    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme,
-        options => builder.Configuration.Bind("CookieSettings", options));
-
-builder.Services.AddIdentityInfrastructure(connectionString);
-
-// App
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+await app.InitializeMyBankDatabaseAsync();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

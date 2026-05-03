@@ -4,7 +4,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MyBank.Web.Infrastructure
+namespace MyBank.Web.Middlewares
 {
     public class MyBankExceptionHandler : IExceptionHandler
     {

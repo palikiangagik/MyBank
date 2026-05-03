@@ -2,13 +2,13 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MyBank.Application;
 using MyBank.Infrastructure;
-using MyBank.Web.Infrastructure;
+using MyBank.Web.Middlewares;
+using System;
 
 namespace MyBank.Web
 {
@@ -21,9 +21,11 @@ namespace MyBank.Web
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            string connectionString = Configuration.GetConnectionString("MyBankDBConnection")
+                ?? throw new InvalidOperationException("Connection string 'MyBankDBConnection' is missing. Check the config.");
+
             services.AddExceptionHandler<MyBankExceptionHandler>();
             
             services.AddControllersWithViews(options => { 
@@ -31,14 +33,11 @@ namespace MyBank.Web
             });
 
             services.AddRazorPages();
-
-            services.AddAuthentication(IdentityConstants.ApplicationScheme).AddIdentityCookies();
-            
             
             // App and infra
-            services.AddApplication();
-            services.AddInfrastructure(Configuration.GetConnectionString("MyBankDBConnection"));
-            services.AddIdentityInfrastructure().AddDefaultUI();
+            services.AddMyBankApplication();
+            services.AddMyBankInfrastructure(connectionString);
+            services.AddMyBankIdentity().AddDefaultUI();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -50,10 +49,9 @@ namespace MyBank.Web
             else
             {
                 app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios,
-                // see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 

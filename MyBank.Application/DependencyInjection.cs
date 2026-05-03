@@ -6,7 +6,7 @@ namespace MyBank.Application
 {
     public static class DependencyInjection
     {
-        public static IServiceCollection AddApplication(this IServiceCollection services)
+        public static IServiceCollection AddMyBankApplication(this IServiceCollection services)
         {
             // from domain layer
             services.AddScoped<AccountService>();

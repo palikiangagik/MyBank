@@ -13,7 +13,7 @@ namespace MyBank.Infrastructure
 {
     public static class DependencyInjection
     {
-        public static IServiceCollection AddInfrastructure(this IServiceCollection services, string connectionString)
+        public static IServiceCollection AddMyBankInfrastructure(this IServiceCollection services, string connectionString)
         {
             services.AddMemoryCache();
 
@@ -30,16 +30,17 @@ namespace MyBank.Infrastructure
             services.AddScoped<ITransactionQuerier, TransactionQuerier>();
 
             // for DB
+            services.AddDbContext<MyBankDbContext>(options => options.UseSqlServer(connectionString));            
             services.AddScoped<IDbSession, DbSession>();
-            services.AddDbContext<MyBankDbContext>(options => options.UseSqlServer(connectionString));
             services.AddScoped<DevelopmentDbSeeder>();
 
             return services;
         }
 
-        public static IdentityBuilder AddIdentityInfrastructure(this IServiceCollection services)
+        public static IdentityBuilder AddMyBankIdentity(this IServiceCollection services)
         {
-            // identity services
+            services.AddAuthentication(IdentityConstants.ApplicationScheme).AddIdentityCookies();
+
             services.AddScoped<ClientIdentityService>();
 
             return services.AddIdentityCore<IdentityUser>(options =>
@@ -54,5 +55,10 @@ namespace MyBank.Infrastructure
             .AddClaimsPrincipalFactory<MyBankPrincipalFactory>();
         }
 
+        public static async Task InitializeDatabaseAsync(this IServiceProvider services)
+        {
+            var dbContext = services.GetRequiredService<MyBankDbContext>();
+            await dbContext.Database.MigrateAsync();
+        }
     }
 }
