@@ -1,6 +1,6 @@
-﻿namespace MyBank.Infrastructure.DTO
+﻿namespace MyBank.Api.DTO
 {
-    public record RegisterClientDTO
+    public record RegisterRequestDTO
     {
         public required string FirstName { get; init; }
         public required string LastName { get; init; }

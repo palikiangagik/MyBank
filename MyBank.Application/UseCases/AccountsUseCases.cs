@@ -43,7 +43,7 @@ namespace MyBank.Application.UseCases
 
             var result = await _accountService.OpenAccountAsync(clientId, balance);
             if (result.Failed)
-                return result.Errors;
+                return result.Error!;
             var (account, transaction) = result.Value;
 
             await _accountRepository.AddAsync(account);
@@ -81,12 +81,12 @@ namespace MyBank.Application.UseCases
 
             Result<Account> getResult = await _accountRepository.GetAsync(clientId, accountId, true);
             if (getResult.Failed)
-                return getResult.Errors;
+                return getResult.Error!;
             Account account = getResult.Value;
 
             Result<WithdrawalTransaction> withdrawResult = await _accountService.WithdrawAsync(account, amount);
             if (withdrawResult.Failed)
-                return withdrawResult.Errors;
+                return withdrawResult.Error!;
             WithdrawalTransaction transaction = withdrawResult.Value;
 
             await _transactionRepository.AddAsync(transaction);
@@ -106,12 +106,12 @@ namespace MyBank.Application.UseCases
 
             Result<Account> getResult = await _accountRepository.GetAsync(clientId, accountId, true);
             if (getResult.Failed)
-                return getResult.Errors;
+                return getResult.Error!;
             Account account = getResult.Value;
 
             Result<DepositTransaction> depositResult = await _accountService.DepositAsync(account, amount);
             if (depositResult.Failed)
-                return depositResult.Errors;
+                return depositResult.Error!;
             DepositTransaction transaction = depositResult.Value;
 
             await _transactionRepository.AddAsync(transaction);
@@ -126,24 +126,24 @@ namespace MyBank.Application.UseCases
         }
 
         public async Task<Result<TransferTransactionDTO>> TransferAsync(int clientId,
-            int sourceAccountId, int destinationAccountId, decimal amount)
+            int sourceAccountId, int recipientAccountId, decimal amount)
         {
             await using var trx = await TransactionScope.StartAsync(_db);
 
             Result<Account> getSourceResult = await _accountRepository.GetAsync(clientId, sourceAccountId, true);
             if (getSourceResult.Failed)
-                return getSourceResult.Errors;
+                return getSourceResult.Error!;//return getSourceResult.Errors;
             Account senderAccount = getSourceResult.Value;
 
-            Result<Account> getDestinationResult = await _accountRepository.GetAsync(destinationAccountId, true);
+            Result<Account> getDestinationResult = await _accountRepository.GetAsync(recipientAccountId, true);
             if (getDestinationResult.Failed)
-                return getDestinationResult.Errors;
+                return getDestinationResult.Error!;//return getDestinationResult.Errors;
             Account recipientAccount = getDestinationResult.Value;
              
             Result<TransferTransaction> transferResult = await _accountService.TransferAsync(senderAccount,
                 recipientAccount, amount);
             if (transferResult.Failed)
-                return transferResult.Errors;
+                return transferResult.Error!;//return transferResult.Errors;
             TransferTransaction transaction = transferResult.Value;
 
             await _transactionRepository.AddAsync(transaction);

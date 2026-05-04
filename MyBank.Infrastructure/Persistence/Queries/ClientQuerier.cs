@@ -1,10 +1,7 @@
 ﻿using CorePrimitives;
 using Dapper;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 using MyBank.Application.DTO;
 using MyBank.Application.Interfaces;
-using System.Data.Common;
 using MyBank.Domain.Common;
 
 namespace MyBank.Infrastructure.Persistence.Queries

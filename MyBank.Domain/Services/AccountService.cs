@@ -31,7 +31,7 @@ namespace MyBank.Domain.Services
                 var transactionResult = account.Deposit(balance)
                     .Then(() => DepositTransaction.Create(transactionId, balance, account.Id));
                 if (transactionResult.Failed)
-                    return transactionResult.Errors;
+                    return transactionResult.Error!;//return transactionResult.Errors;
                 transaction = transactionResult.Value;
             }
 

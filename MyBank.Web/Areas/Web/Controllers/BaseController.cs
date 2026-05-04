@@ -43,17 +43,26 @@ namespace MyBank.Web.Areas.Web.Controllers
         /// <returns>An IActionResult representing the outcome of the operation.</returns>
         protected IActionResult Failure(Result result, BaseViewModel viewModel = null, string action = null)
         {
-            if (result.Errors.Count == 0)
+            if (result.Error is null)
                 return StatusCode(500, "An unknown error occurred.");
 
             if (viewModel is null)
             {
-                string error = string.Join("\n", result.Errors.Select(e => e.Description));
-                return BadRequest(error);
+                //string error = string.Join("\n", result.Errors.Select(e => e.Description));                
+                //return BadRequest(error);
+                switch (result.Error.Type)
+                {
+                    case ErrorType.NotFound:
+                        return NotFound(result.Error.Description); // 404
+                    case ErrorType.Conflict:
+                        return Conflict(result.Error.Description); // 409 
+                    case ErrorType.Unauthorized:
+                        return Unauthorized(result.Error.Description); // 401
+                }
             }
 
-            foreach (var error in result.Errors)
-                ModelState.AddModelError(error.Id, error.Description);
+            ModelState.AddModelError(string.Empty, result.Error.Description);//foreach (var error in result.Errors)
+            //    ModelState.AddModelError(error.Id, error.Description);
 
             if (string.IsNullOrEmpty(action))
                 return View(viewModel);

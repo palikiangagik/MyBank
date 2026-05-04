@@ -7,12 +7,12 @@ using MyBank.Application.DTO;
 
 namespace MyBank.Web.Areas.Web.Controllers
 {
-    public class ProfileController : BaseController
+    public class ClientController : BaseController
     {
         private readonly ClientUseCases _clientUseCases;
         private readonly AccountsUseCases _accountsUseCases;
 
-        public ProfileController(ClientUseCases clientUseCases, AccountsUseCases accountsUseCases)
+        public ClientController(ClientUseCases clientUseCases, AccountsUseCases accountsUseCases)
         {
             _clientUseCases = clientUseCases;
             _accountsUseCases = accountsUseCases;
@@ -25,12 +25,12 @@ namespace MyBank.Web.Areas.Web.Controllers
                 return Failure(summaryResult);
             ClientSummaryDTO summary = summaryResult.Value; 
 
-            return View(new ProfileViewModel
+            return View(new ClientViewModel
             {
                 UserName = summary.Name.FirstName + " " + summary.Name.LastName,
                 Balance = summary.TotalBalance,
                 Accounts = summary.AccountList.Items
-                .Select(acc => new ProfileAccountViewItem
+                .Select(acc => new ClientAccountViewItem
                 {
                     Id = acc.Id,
                     Code = acc.Code,

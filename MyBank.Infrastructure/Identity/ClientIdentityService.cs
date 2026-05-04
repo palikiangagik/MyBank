@@ -2,9 +2,7 @@
 using Dapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 using MyBank.Application.Interfaces;
-using MyBank.Domain.Common;
 using MyBank.Domain.Entities;
 using MyBank.Domain.Services;
 using MyBank.Domain.ValueObjects;
@@ -17,17 +15,21 @@ namespace MyBank.Infrastructure.Identity
     {
         private readonly MyBankDbContext _db;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly SignInManager<IdentityUser> _signInManager;
         private readonly ClientService _clientService;
         private readonly IClientRepository _clientRepository;
 
         public ClientIdentityService(MyBankDbContext db,
-            UserManager<IdentityUser> userManager, ClientService clientService, IClientRepository clientRepository)
+            UserManager<IdentityUser> userManager, 
+            SignInManager<IdentityUser> signInManager,
+            ClientService clientService, IClientRepository clientRepository)
         {
             _db = db;
             _userManager = userManager;
+            _signInManager = signInManager;
             _clientService = clientService;
             _clientRepository = clientRepository;
-        }
+        } 
 
         public async Task<Result<RegisterClientResultDTO>> RegisterClientAsync(RegisterClientDTO dto)
         {
@@ -37,7 +39,7 @@ namespace MyBank.Infrastructure.Identity
             var user = new IdentityUser { UserName = dto.Email, Email = dto.Email };
             var identityResult = await _userManager.CreateAsync(user, dto.Password);
             if (!identityResult.Succeeded)
-                return identityResult.Errors.Select(e => new Error(e.Code, e.Description)).ToList();
+                return new Error(ErrorType.Conflict, string.Join("\n", identityResult.Errors.Select(e=>e.Description)));
 
             // create client
             var name = new ClientName { FirstName = dto.FirstName, LastName = dto.LastName };
@@ -61,17 +63,22 @@ namespace MyBank.Infrastructure.Identity
             };
         }
 
-        public async Task<Result<int>> GetClientIdByUserIdAsync(string userId)
+        public async Task<Result> LoginClientAsync(LoginClientDTO dto)
         {
-            const string sql = "SELECT ClientId FROM ClientIdentity WHERE UserId = @UserId";
-            int? clientId = await _db.Connection.ExecuteScalarAsync<int?>(
-                sql, 
-                new { UserId = userId }, 
-                transaction: _db.Transaction
+            var result = await _signInManager.PasswordSignInAsync(
+                dto.Email, dto.Password, dto.RememberMe, 
+                lockoutOnFailure: false
             );
-            if (clientId == null)
-                return Errors.ClientNotFound;
-            return clientId.Value;
+
+            if (!result.Succeeded)
+                return new Error(ErrorType.Unauthorized, $"Invalid login attempt.");
+
+            return Result.Success();
+        }
+
+        public async Task LogoutAsync()
+        {
+            await _signInManager.SignOutAsync();
         }
     }
 }

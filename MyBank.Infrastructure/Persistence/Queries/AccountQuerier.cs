@@ -1,13 +1,8 @@
 ﻿using CorePrimitives;
 using Dapper;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 using MyBank.Application.DTO;
 using MyBank.Application.Interfaces;
 using MyBank.Domain.Common;
-using System.Data.Common;
-using System.Security;
-
 namespace MyBank.Infrastructure.Persistence.Queries
 {
     public class AccountQuerier : IAccountQuerier

@@ -1,13 +1,13 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-
 using MyBank.Application.Interfaces;
 using MyBank.Domain.Interfaces; 
+using MyBank.Infrastructure.Identity;
 using MyBank.Infrastructure.Persistence;
 using MyBank.Infrastructure.Persistence.Queries;
 using MyBank.Infrastructure.Persistence.Repositories;
-using MyBank.Infrastructure.Identity;
 
 namespace MyBank.Infrastructure
 {
@@ -37,11 +37,24 @@ namespace MyBank.Infrastructure
             return services;
         }
 
-        public static IdentityBuilder AddMyBankIdentity(this IServiceCollection services)
+        public static IdentityBuilder AddMyBankIdentity(this IServiceCollection services, bool returnUnauthorized = false)
         {
             services.AddAuthentication(IdentityConstants.ApplicationScheme).AddIdentityCookies();
 
             services.AddScoped<ClientIdentityService>();
+
+            if (returnUnauthorized)
+            {
+                services.ConfigureApplicationCookie(options =>
+                {
+                    options.Events.OnRedirectToLogin = context =>
+                    {
+                        // to reset default identity redirect behavior
+                        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                        return Task.CompletedTask;
+                    };
+                });
+            }
 
             return services.AddIdentityCore<IdentityUser>(options =>
             {
@@ -52,7 +65,8 @@ namespace MyBank.Infrastructure
             })
             .AddDefaultTokenProviders()
             .AddEntityFrameworkStores<MyBankDbContext>()
-            .AddClaimsPrincipalFactory<MyBankPrincipalFactory>();
+            .AddClaimsPrincipalFactory<MyBankPrincipalFactory>()
+            .AddSignInManager<SignInManager<IdentityUser>>();
         }
 
         public static async Task InitializeDatabaseAsync(this IServiceProvider services)

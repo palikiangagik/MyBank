@@ -13,7 +13,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddMyBankApplication();
 builder.Services.AddMyBankInfrastructure(connectionString);
-builder.Services.AddMyBankIdentity();
+builder.Services.AddMyBankIdentity(true);
 
 var app = builder.Build();
 

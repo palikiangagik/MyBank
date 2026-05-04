@@ -1,24 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using MyBank.Domain.Services;
+using MyBank.Infrastructure.Identity;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MyBank.Web.Areas.Identity.Pages.Account
 {
     [AllowAnonymous]
     public class LogoutModel : PageModel
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly ClientIdentityService _clientIdentityService;
         private readonly ILogger<LogoutModel> _logger;
 
-        public LogoutModel(SignInManager<IdentityUser> signInManager, ILogger<LogoutModel> logger)
+        public LogoutModel(ClientIdentityService clientService, ILogger<LogoutModel> logger)
         {
-            _signInManager = signInManager;
+            _clientIdentityService = clientService;
             _logger = logger;
         }
 
@@ -28,7 +30,7 @@ namespace MyBank.Web.Areas.Identity.Pages.Account
 
         public async Task<IActionResult> OnPost(string returnUrl = null)
         {
-            await _signInManager.SignOutAsync();
+            await _clientIdentityService.LogoutAsync();
             _logger.LogInformation("User logged out.");
             if (returnUrl != null)
             {

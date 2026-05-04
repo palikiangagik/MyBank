@@ -7,7 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MyBank.Application;
 using MyBank.Infrastructure;
-using MyBank.Web.Middlewares;
 using System;
 
 namespace MyBank.Web
@@ -26,8 +25,7 @@ namespace MyBank.Web
             string connectionString = Configuration.GetConnectionString("MyBankDBConnection")
                 ?? throw new InvalidOperationException("Connection string 'MyBankDBConnection' is missing. Check the config.");
 
-            services.AddExceptionHandler<MyBankExceptionHandler>();
-            
+                       
             services.AddControllersWithViews(options => { 
                 options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
             });

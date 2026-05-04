@@ -1,8 +1,12 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using CorePrimitives;
+using Dapper;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using MyBank.Application.UseCases;
+using MyBank.Domain.Entities;
 using MyBank.Infrastructure.Persistence;
+using System.Runtime.CompilerServices;
 using System.Security.Claims;
 
 namespace MyBank.Infrastructure.Identity
@@ -11,59 +15,54 @@ namespace MyBank.Infrastructure.Identity
     {
         private readonly IMemoryCache _cache;
         private readonly MyBankDbContext _db;
-        private readonly ClientIdentityService _clientIdentityService;
-        private readonly ClientUseCases _clientUseCases;
 
         public MyBankPrincipalFactory(            
             UserManager<IdentityUser> userManager,
             IOptions<IdentityOptions> optionsAccessor,
             IMemoryCache cache,
-            MyBankDbContext db,
-            ClientIdentityService clientIdentityService,
-            ClientUseCases clientUseCases
+            MyBankDbContext db
         ) : base(userManager, optionsAccessor)
         {
             _cache = cache;
             _db = db;
-            _clientIdentityService = clientIdentityService;
-            _clientUseCases = clientUseCases;
         }
+
+        private record Client(int Id, string Name);
 
         protected override async Task<ClaimsIdentity> GenerateClaimsAsync(IdentityUser user)
         {
             var identity = await base.GenerateClaimsAsync(user);
 
-            // adding ClientId to the claims
-            int clientId = await _cache.GetOrCreateAsync($"client-id:{user.Id}", async entry =>
-            {
-                var result = await _clientIdentityService.GetClientIdByUserIdAsync(user.Id);
-                if (result.Failed)
-                {
-                    string err = $"Profile can not be found for IdentityUser: {user.Id}." +
-                        "Ensure that ClientIdentityService.RegisterClientAsync() used for registration process.";
-                    throw new InvalidOperationException(err);
-                }                
+            Client? client = await GetClient(user) ??
+                throw new InvalidOperationException($"Client can not be found for IdentityUser: {user.Id}." +
+                    "Ensure that ClientIdentityService.RegisterClientAsync() used for registration process.");
 
-                return result.Value;
-            });
-            identity.AddClaim(new Claim("ClientId", clientId.ToString()));
-
-            // adding client name to the claims
-            string? clientName = await _cache.GetOrCreateAsync($"client-name:{user.Id}", async entry =>
-            {
-                var result = await _clientUseCases.GetClientNameAsync(clientId);
-                if (result.Failed)
-                {
-                    string err = $"Profile can not be found for IdentityUser: {user.Id}." +
-                        "Ensure that ClientIdentityService.RegisterClientAsync() used for registration process.";
-                    throw new InvalidOperationException(err);
-                }
-                
-                return result.Value.FirstName + " " + result.Value.LastName;
-            });
-            identity.AddClaim(new Claim("ClientName", clientName??""));
+            identity.AddClaim(new Claim("ClientId", client.Id.ToString()));           
+            identity.AddClaim(new Claim("ClientName", client.Name));
                      
             return identity;
+        }      
+
+        private async Task<Client?> GetClient(IdentityUser user)
+        {
+            return await _cache.GetOrCreateAsync($"client-id:{user.Id}", async entry =>
+            {
+                const string sql = @"
+                    SELECT 
+                        CI.ClientId AS Id,
+                        C.FirstName,
+                        C.LastName
+                    FROM 
+                        ClientIdentity as CI
+                        LEFT JOIN Clients as C ON CI.ClientId = C.Id
+                    WHERE 
+                        CI.UserId = @UserId
+                ";
+                var row = await _db.Connection.QueryFirstOrDefaultAsync(sql, new { UserId = user.Id });
+                if (row is null)
+                    return null;
+                return new Client(row.Id, row.FirstName + " " + row.LastName);
+            });
         }
     }
 }

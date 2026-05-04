@@ -81,9 +81,9 @@ namespace MyBank.Infrastructure.Persistence
                 Password = "1qaz@WSX"
             });
 
-            if (!result.Succeeded)
+            if (result.Failed)
             {
-                var errorMessages = string.Join("; ", result.Errors.Select(e => e.Description));
+                var errorMessages = result.Error!.Description;//string.Join("; ", result.Errors.Select(e => e.Description));
                 throw new Exception($"Identity Error: {errorMessages}");
             }
 
@@ -95,7 +95,7 @@ namespace MyBank.Infrastructure.Persistence
             var result = await _accountUseCases.OpenAccountAsync(clientId, balance);
             if (result.Failed)
             {
-                var errorMessages = string.Join("; ", result.Errors.Select(e => e.Description));
+                var errorMessages = result.Error!.Description;//string.Join("; ", result.Errors.Select(e => e.Description));
                 throw new Exception($"Failed to create account for user with id {clientId}: {errorMessages}");
             }
             return result.Value.Id;
@@ -107,7 +107,7 @@ namespace MyBank.Infrastructure.Persistence
             var result = await _accountUseCases.TransferAsync(clientFromId, accountFromId, accountToId, amount);
             if (result.Failed)
             {
-                var errorMessages = string.Join("; ", result.Errors.Select(e => e.Description));
+                var errorMessages = result.Error!.Description;//string.Join("; ", result.Errors.Select(e => e.Description));
                 throw new Exception($"Failed to create transfer transaction of {amount} from account with " +
                     $"id {accountFromId} to account " +
                     $"with id {accountToId}: {errorMessages}");
