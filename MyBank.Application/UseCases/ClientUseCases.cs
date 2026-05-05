@@ -1,10 +1,7 @@
 ﻿using CorePrimitives;
-using MyBank.Application.DTO;
 using MyBank.Application.Interfaces;
-using MyBank.Application.Helpers;
-using MyBank.Domain.Services;
-using MyBank.Domain.Entities;
-using MyBank.Domain.ValueObjects;
+using MyBank.Application.DTO.Client;
+using MyBank.Application.DTO.Common;
 
 namespace MyBank.Application.UseCases
 {

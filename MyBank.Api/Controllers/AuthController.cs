@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MyBank.Infrastructure.Identity;
+using MyBank.Api.DTO.Auth;
+using MyBank.Api.Mappings;
 
-using ApiDTO = MyBank.Api.DTO;
-using InfrDTO = MyBank.Infrastructure.DTO;
 
 namespace MyBank.Api.Controllers
 {    
@@ -17,33 +17,17 @@ namespace MyBank.Api.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(ApiDTO.RegisterRequestDTO dto)
+        public async Task<IActionResult> Register(RegisterRequestDTO dto)
         {
-            var result = await _clientIdentityService.RegisterClientAsync(new InfrDTO.RegisterClientDTO
-            {
-                FirstName = dto.FirstName,
-                LastName = dto.LastName,
-                Email = dto.Email,
-                Password = dto.Password,
-            });
-
-            if (result.Failed)
-                return Failure(result);
-            return NoContent();
+            var result = await _clientIdentityService.RegisterClientAsync(dto.ToInfraDTO());
+            return result.Failed ? Failure(result) : NoContent();
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login(ApiDTO.LoginRequestDTO dto)
+        public async Task<IActionResult> Login(LoginRequestDTO dto)
         {
-            var result = await _clientIdentityService.LoginClientAsync(new InfrDTO.LoginClientDTO { 
-                Email = dto.Email,
-                Password = dto.Password,
-                RememberMe = dto.RememberMe
-            });
-
-            if (result.Failed)
-                return Failure(result);
-            return NoContent();
+            var result = await _clientIdentityService.LoginClientAsync(dto.ToInfraDTO());
+            return result.Failed ? Failure(result) : NoContent();
         }
 
         [HttpPost("logout")]

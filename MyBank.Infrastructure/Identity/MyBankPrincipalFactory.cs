@@ -1,12 +1,8 @@
-﻿using CorePrimitives;
-using Dapper;
+﻿using Dapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
-using MyBank.Application.UseCases;
-using MyBank.Domain.Entities;
 using MyBank.Infrastructure.Persistence;
-using System.Runtime.CompilerServices;
 using System.Security.Claims;
 
 namespace MyBank.Infrastructure.Identity

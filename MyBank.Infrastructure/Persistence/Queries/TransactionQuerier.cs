@@ -1,6 +1,7 @@
-﻿using CorePrimitives;
-using Dapper;
-using MyBank.Application.DTO;
+﻿using Dapper;
+using MyBank.Application.DTO.Common;
+using MyBank.Application.DTO.Transactions;
+using MyBank.Application.DTO.Client;
 using MyBank.Application.Interfaces;
 using MyBank.Domain.Entities;
 
@@ -15,8 +16,7 @@ namespace MyBank.Infrastructure.Persistence.Queries
             _db = db;
         }
 
-
-        public async Task<SubList<TransactionHistoryItemDTO>> GetTransactionHistoryAsync(int clientId, PagingParametersDTO pageParameters)
+        public async Task<TransactionHistoryListDTO> GetTransactionHistoryAsync(int clientId, PagingParametersDTO pageParameters)
         {            
             const string sqlRows = @"
                     SELECT 
@@ -63,31 +63,35 @@ namespace MyBank.Infrastructure.Persistence.Queries
                 Limit = pageParameters.PageSize,
             }, _db.Transaction);
 
-
-            var items = rows.Select(row => new TransactionHistoryItemDTO
-            {
-                Id = row.Id,
-                Type = (TransactionType)row.Type,
-                CreatedAt = row.CreatedAt,
-                Amount = row.Amount,
-                AccountCode = row.AccountCode,
-                Sender = row.SenderAccountCode is not null ? new TransactionHistoryItemDTO.Party
+            return new TransactionHistoryListDTO { 
+                TotalCount = rows.FirstOrDefault()?.TotalCount ?? 0,
+                Items = rows.Select(row => new TransactionHistoryItemDTO
                 {
-                    AccountCode = row.SenderAccountCode,
-                    FirstName = row.SenderFirstName,
-                    LastName = row.SenderLastName
-                } : null,
-                Recipient = row.RecipientAccountCode is not null ? new TransactionHistoryItemDTO.Party
-                {
-                    AccountCode = row.RecipientAccountCode,
-                    FirstName = row.RecipientFirstName,
-                    LastName = row.RecipientLastName
-                } : null
-            });
-
-            int totalCount = rows.FirstOrDefault()?.TotalCount ?? 0;
-
-            return new SubList<TransactionHistoryItemDTO>(items.ToList(), totalCount);
+                    Id = row.Id,
+                    Type = (TransactionType)row.Type,
+                    CreatedAt = row.CreatedAt,
+                    Amount = row.Amount,
+                    AccountCode = row.AccountCode,
+                    Sender = row.SenderAccountCode is not null ? new TransferPartyDTO
+                    {
+                        AccountCode = row.SenderAccountCode,
+                        Name = new ClientNameDTO
+                        {
+                            FirstName = row.SenderFirstName,
+                            LastName = row.SenderLastName
+                        }
+                    } : null,
+                    Recipient = row.RecipientAccountCode is not null ? new TransferPartyDTO
+                    {
+                        AccountCode = row.RecipientAccountCode,
+                        Name = new ClientNameDTO
+                        {
+                            FirstName = row.RecipientFirstName,
+                            LastName = row.RecipientLastName
+                        }
+                    } : null
+                }).ToList()
+            };
         }
     }
 }

@@ -3,7 +3,9 @@ using MyBank.Web.Areas.Web.ViewModels;
 using System.Threading.Tasks;
 using System.Linq;
 using MyBank.Application.UseCases;
-using MyBank.Application.DTO;
+using MyBank.Application.DTO.Accounts;
+using MyBank.Application.DTO.Client;
+using MyBank.Application.DTO.Common;
 
 namespace MyBank.Web.Areas.Web.Controllers
 {
@@ -29,7 +31,7 @@ namespace MyBank.Web.Areas.Web.Controllers
             {
                 UserName = summary.Name.FirstName + " " + summary.Name.LastName,
                 Balance = summary.TotalBalance,
-                Accounts = summary.AccountList.Items
+                Accounts = summary.Accounts.Items
                 .Select(acc => new ClientAccountViewItem
                 {
                     Id = acc.Id,

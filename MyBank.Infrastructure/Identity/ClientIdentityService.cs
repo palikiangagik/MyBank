@@ -6,7 +6,7 @@ using MyBank.Application.Interfaces;
 using MyBank.Domain.Entities;
 using MyBank.Domain.Services;
 using MyBank.Domain.ValueObjects;
-using MyBank.Infrastructure.DTO;
+using MyBank.Infrastructure.DTO.Auth;
 using MyBank.Infrastructure.Persistence;
 
 namespace MyBank.Infrastructure.Identity

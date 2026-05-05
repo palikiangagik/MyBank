@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
@@ -14,7 +13,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using MyBank.Infrastructure.Identity;
-using MyBank.Infrastructure.DTO;
+using MyBank.Infrastructure.DTO.Auth;
 
 namespace MyBank.Web.Areas.Identity.Pages.Account
 {

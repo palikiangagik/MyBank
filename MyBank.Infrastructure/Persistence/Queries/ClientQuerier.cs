@@ -1,6 +1,8 @@
 ﻿using CorePrimitives;
 using Dapper;
-using MyBank.Application.DTO;
+using MyBank.Application.DTO.Accounts;
+using MyBank.Application.DTO.Client;
+using MyBank.Application.DTO.Common;
 using MyBank.Application.Interfaces;
 using MyBank.Domain.Common;
 
@@ -62,25 +64,25 @@ namespace MyBank.Infrastructure.Persistence.Queries
                 Limit = pageParameters.PageSize
             }, transaction: _db.Transaction);
 
-            var resultDto = new ClientSummaryDTO {
+            return new ClientSummaryDTO
+            {
                 Id = clientId,
-                Name = new ClientSummaryDTO.ClientName {
+                Name = new ClientNameDTO
+                {
                     FirstName = summaryResult.FirstName,
                     LastName = summaryResult.LastName
                 },
                 TotalBalance = summaryResult.TotalBalance,
-                AccountList = new(
-                    resultAccounts.Select(row => new ClientSummaryDTO.AccountItem
-                    {
+                Accounts = new AccountSummaryListDTO
+                {
+                    TotalCount = summaryResult.AccountCount,
+                    Items = resultAccounts.Select(row => new AccountSummaryDTO {
                         Id = (int)row.Id,
                         Code = (string)row.Code,
                         Balance = (decimal)row.Balance
-                    }).ToList(), 
-                    summaryResult.AccountCount
-                )
+                    }).ToList(),
+                }
             };
-
-            return resultDto;
         }
     }
 }

@@ -1,5 +1,5 @@
-﻿using CorePrimitives;
-using MyBank.Application.DTO;
+﻿using MyBank.Application.DTO.Common;
+using MyBank.Application.DTO.Transactions;
 using MyBank.Application.Interfaces;
 
 namespace MyBank.Application.UseCases
@@ -13,7 +13,7 @@ namespace MyBank.Application.UseCases
             _transactionQuerier = transactionQuerier;
         }
 
-        public async Task<SubList<TransactionHistoryItemDTO>> GetTransactionHistoryAsync(int clientId, 
+        public async Task<TransactionHistoryListDTO> GetTransactionHistoryAsync(int clientId, 
             PagingParametersDTO pagingParameters) =>
             await _transactionQuerier.GetTransactionHistoryAsync(clientId, pagingParameters);
     }

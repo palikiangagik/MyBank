@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.EntityFrameworkCore;
 using MyBank.Application.UseCases;
+using MyBank.Infrastructure.DTO.Auth;
 using MyBank.Infrastructure.Identity;
+
 
 namespace MyBank.Infrastructure.Persistence
 {
@@ -73,7 +74,7 @@ namespace MyBank.Infrastructure.Persistence
                 Email = email
             };
 
-            var result = await _clientIdentityService.RegisterClientAsync(new DTO.RegisterClientDTO
+            var result = await _clientIdentityService.RegisterClientAsync(new RegisterClientDTO
             {
                 Email = email,
                 FirstName = firstName,

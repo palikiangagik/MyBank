@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyBank.Application.UseCases;
+using MyBank.Api.DTO.Common;
+using MyBank.Api.Mappings;
 
-using ApiDTO = MyBank.Api.DTO;
-using AppDTO = MyBank.Application.DTO;
 
 namespace MyBank.Api.Controllers
 {
@@ -20,24 +20,10 @@ namespace MyBank.Api.Controllers
 
         // get client summary
         [HttpGet]
-        public async Task<IActionResult> GetClientSummary([FromQuery] ApiDTO.PagingParametersDTO dto)
+        public async Task<IActionResult> GetClientSummary([FromQuery] PagingParametersDTO dto)
         {
-            var result = await _clientUseCases.GetClientSummaryAsync(ClientId, new(dto.Page, dto.PageSize));
-            if (result.Failed)
-                return Failure(result);
-            AppDTO.ClientSummaryDTO summary = result.Value;
-
-            return Ok(new ApiDTO.ClientSummaryDTO {
-                ClientName = summary.Name.FirstName + " " + summary.Name.LastName,
-                Balance = summary.TotalBalance,
-                Accounts = summary.AccountList.Items
-                .Select(acc => new ApiDTO.ClientSummaryAccountItemDTO
-                {
-                    Id = acc.Id,
-                    Code = acc.Code,
-                    Balance = acc.Balance
-                }).ToList()
-            });
+            var result = await _clientUseCases.GetClientSummaryAsync(ClientId, dto.ToAppDTO());
+            return result.Failed ? Failure(result) : Ok(result.Value.ToApiDTO());
         }
     }
 }

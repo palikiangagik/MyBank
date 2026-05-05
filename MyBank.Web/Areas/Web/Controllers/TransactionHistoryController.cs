@@ -31,9 +31,9 @@ namespace MyBank.Web.Areas.Web.Controllers
                     Amount = trans.Amount,
                     AccountCode = trans.AccountCode,
                     SenderAccountCode = trans.Sender?.AccountCode,
-                    SenderName = trans.Sender is null ? null : trans.Sender.FirstName + " " + trans.Sender.LastName,
+                    SenderName = trans.Sender is null ? null : trans.Sender.Name.FirstName + " " + trans.Sender.Name.LastName,
                     RecipientAccountCode = trans.Recipient?.AccountCode,
-                    RecipientName = trans.Recipient is null ? null : trans.Recipient.FirstName + " " + trans.Recipient.LastName
+                    RecipientName = trans.Recipient is null ? null : trans.Recipient.Name.FirstName + " " + trans.Recipient.Name.LastName
                 }).ToList();
 
             return View(new TransactionHistoryViewModel

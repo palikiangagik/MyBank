@@ -1,5 +1,6 @@
 ﻿using CorePrimitives;
-using MyBank.Application.DTO;
+using MyBank.Application.DTO.Client;
+using MyBank.Application.DTO.Common;
 
 namespace MyBank.Application.Interfaces
 {

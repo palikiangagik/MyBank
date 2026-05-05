@@ -1,9 +1,11 @@
 ﻿using CorePrimitives;
 using MyBank.Domain.Entities;
-using MyBank.Application.DTO;
 using MyBank.Application.Interfaces;
 using MyBank.Domain.Services;
 using MyBank.Application.Helpers;
+using MyBank.Application.DTO.Accounts;
+using MyBank.Application.DTO.Transactions;
+using MyBank.Application.DTO.Common;
 
 namespace MyBank.Application.UseCases
 {
@@ -31,10 +33,10 @@ namespace MyBank.Application.UseCases
         public async Task<Result<AccountSummaryDTO>> GetAccountSummaryAsync(int clientId, int accountId) =>
             await _accountQuerier.GetAccountSummaryAsync(clientId, accountId);
 
-        public async Task<SubList<AccountSummaryDTO>> GetClientAccountListAsync(int clientId, PagingParametersDTO pagingParameters) =>
+        public async Task<AccountSummaryListDTO> GetClientAccountListAsync(int clientId, PagingParametersDTO pagingParameters) =>
             await _accountQuerier.GetClientAccountListAsync(clientId, pagingParameters);
 
-        public async Task<SubList<DestinationAccountDTO>> GetDestinationAccountListAsync(int clientId, PagingParametersDTO pagingParameters) =>
+        public async Task<DestinationAccountListDTO> GetDestinationAccountListAsync(int clientId, PagingParametersDTO pagingParameters) =>
             await _accountQuerier.GetDestinationAccountListAsync(clientId, pagingParameters);
 
         public async Task<Result<AccountSummaryDTO>> OpenAccountAsync(int clientId, decimal balance)

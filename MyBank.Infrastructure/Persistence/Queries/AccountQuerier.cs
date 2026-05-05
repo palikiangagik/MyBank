@@ -1,6 +1,8 @@
 ﻿using CorePrimitives;
 using Dapper;
-using MyBank.Application.DTO;
+using MyBank.Application.DTO.Accounts;
+using MyBank.Application.DTO.Client;
+using MyBank.Application.DTO.Common;
 using MyBank.Application.Interfaces;
 using MyBank.Domain.Common;
 namespace MyBank.Infrastructure.Persistence.Queries
@@ -34,7 +36,7 @@ namespace MyBank.Infrastructure.Persistence.Queries
             };
         }
 
-        public async Task<SubList<AccountSummaryDTO>> GetClientAccountListAsync(int clientId, PagingParametersDTO pageParameters)
+        public async Task<AccountSummaryListDTO> GetClientAccountListAsync(int clientId, PagingParametersDTO pageParameters)
         {
             const string sqlCount = "SELECT COUNT(*) FROM Accounts WHERE ClientId=@ClientId AND IsClosed=0";
             int totalCount = await _db.Connection.ExecuteScalarAsync<int>(sqlCount, new {
@@ -55,16 +57,18 @@ namespace MyBank.Infrastructure.Persistence.Queries
                 Limit = pageParameters.PageSize
             }, transaction: _db.Transaction);
 
-            var items = rows.Select(row => new AccountSummaryDTO{
-                Id = row.Id,
-                Code = row.Code,
-                Balance = row.Balance
-            }).ToList(); 
-
-            return new SubList<AccountSummaryDTO>(items, totalCount);
+            return new AccountSummaryListDTO {
+                TotalCount = totalCount,
+                Items = rows.Select(row => new AccountSummaryDTO
+                {
+                    Id = row.Id,
+                    Code = row.Code,
+                    Balance = row.Balance
+                }).ToList(),
+            };
         }
 
-        public async Task<SubList<DestinationAccountDTO>> GetDestinationAccountListAsync(int clientId, PagingParametersDTO pageParameters)
+        public async Task<DestinationAccountListDTO> GetDestinationAccountListAsync(int clientId, PagingParametersDTO pageParameters)
         {
             const string sqlCount = "SELECT COUNT(*) FROM Accounts WHERE ClientId<>@ClientId AND IsClosed=0";
             int totalCount = await _db.Connection.ExecuteScalarAsync<int>(sqlCount, new { ClientId = clientId }, 
@@ -84,15 +88,21 @@ namespace MyBank.Infrastructure.Persistence.Queries
                 Limit = pageParameters.PageSize,
             }, transaction: _db.Transaction);
 
-            var items = rows.Select(row => new DestinationAccountDTO {
-                Id = row.Id,
-                Code = row.Code,
-                Name = new DestinationAccountDTO.ClientName { 
-                    FirstName = row.FirstName, LastName = row.LastName 
-                }
-            }).ToList();
 
-            return new SubList<DestinationAccountDTO>(items, totalCount);
+            return new DestinationAccountListDTO
+            {
+                TotalCount = totalCount,
+                Items = rows.Select(row => new DestinationAccountDTO
+                {
+                    Id = row.Id,
+                    Code = row.Code,
+                    Name = new ClientNameDTO
+                    {
+                        FirstName = row.FirstName,
+                        LastName = row.LastName
+                    }
+                }).ToList()
+            };
         }
     }
 }
