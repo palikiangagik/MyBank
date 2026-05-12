@@ -1,3 +1,4 @@
+using MyBank.Api;
 using MyBank.Application;
 using MyBank.Infrastructure;
 using MyBank.Infrastructure.Persistence;
@@ -14,6 +15,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddMyBankApplication();
 builder.Services.AddMyBankInfrastructure(connectionString);
 builder.Services.AddMyBankIdentity(true);
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<ExceptionHandler>();
 
 var app = builder.Build();
 
@@ -26,6 +29,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseExceptionHandler();
 
 app.UseAuthentication();
 app.UseAuthorization();

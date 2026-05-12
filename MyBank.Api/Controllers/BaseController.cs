@@ -1,5 +1,6 @@
 ﻿using CorePrimitives;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Razor.TagHelpers;
 using System.Security;
 
 namespace MyBank.Api.Controllers
@@ -40,8 +41,9 @@ namespace MyBank.Api.Controllers
                     return Conflict(result.Error.Description); // 409 
                 case ErrorType.Unauthorized:
                     return Unauthorized(result.Error.Description); // 401
-                default: 
-                    return StatusCode(500, result.Error.Description); // 500 for unrecognized error types
+                default:
+                    throw new InvalidOperationException(
+                        $"Unexpected error type: {result.Error.Type}. Description: {result.Error.Description}");
             }            
         }
     }
